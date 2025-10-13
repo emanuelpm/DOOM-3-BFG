@@ -609,6 +609,8 @@ int Sys_PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] ) {
 			mouseEvents[i][1] = mouseDown;
 			Sys_QueEvent( SE_KEY, K_MOUSE1 + mouseButton, mouseDown, 0, NULL, 0 );
 		} else {
+#pragma warning(push)
+#pragma warning(disable: 4644)
 			switch (polled_didod[i].dwOfs) {
 			case DIMOFS_X:
 				mouseEvents[i][0] = M_DELTAX;
@@ -634,6 +636,7 @@ int Sys_PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] ) {
 				}
 				break;
 			}
+#pragma warning(pop)
 		}
 	}
 
