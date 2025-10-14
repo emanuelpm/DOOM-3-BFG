@@ -287,6 +287,7 @@ idCVar  idFileSystemLocal::fs_game_base( "fs_game_base", "", CVAR_SYSTEM | CVAR_
 
 idCVar	fs_basepath( "fs_basepath", "", CVAR_SYSTEM | CVAR_INIT, "" );
 idCVar	fs_savepath( "fs_savepath", "", CVAR_SYSTEM | CVAR_INIT, "" );
+idCVar	fs_shaderOverridePath( "fs_shaderOverridePath", "", CVAR_SYSTEM | CVAR_INIT, "" );
 idCVar	fs_resourceLoadPriority( "fs_resourceLoadPriority", "1", CVAR_SYSTEM , "if 1, open requests will be honored from resource files first; if 0, the resource files are checked after normal search paths" );
 idCVar	fs_enableBackgroundCaching( "fs_enableBackgroundCaching", "1", CVAR_SYSTEM , "if 1 allow the 360 to precache game files in the background" );
 
@@ -656,29 +657,37 @@ idFileSystemLocal::AddPerPlatformResources
 void idFileSystemLocal::AddRenderProgs( idStrList &files ) {
 	idStrList work;
 
-	// grab all the renderprogs
-	idStr path = RelativePathToOSPath( "renderprogs/cgb", "fs_basepath" );
-	ListOSFiles( path, "*.cgb", work );
-	for ( int i = 0; i < work.Num(); i++ ) {
-		files.Append( idStr( "renderprogs/cgb/" ) + work[i] );
-	}
+	// Highest to lowest priority
+	const char* const shaderSearchPaths[] = {
+		"fs_shaderOverridePath"
+		"fs_basepath",
+	};
 
-	path = RelativePathToOSPath( "renderprogs/hlsl", "fs_basepath" );
-	ListOSFiles( path, "*.v360", work );
-	for ( int i = 0; i < work.Num(); i++ ) {
-		files.Append( idStr( "renderprogs/hlsl/" ) + work[i] );
-	}
-	ListOSFiles( path, "*.p360", work );
-	for ( int i = 0; i < work.Num(); i++ ) {
-		files.Append( idStr( "renderprogs/hlsl/" ) + work[i] );
-	}
+	// TODO(EPM): Is there an id macro for array length?
+	for ( int i = 0; i < 2; ++i ) {
+		// grab all the renderprogs
+		idStr path = RelativePathToOSPath( "renderprogs/cgb", shaderSearchPaths[i] );
+		ListOSFiles( path, "*.cgb", work );
+		for ( int i = 0; i < work.Num(); i++ ) {
+			files.Append( idStr( "renderprogs/cgb/" ) + work[ i ] );
+		}
 
-	path = RelativePathToOSPath( "renderprogs/gl", "fs_basepath" );
-	ListOSFiles( path, "*.*", work );
-	for ( int i = 0; i < work.Num(); i++ ) {
-		files.Append( idStr( "renderprogs/gl/" ) + work[i] );
-	}
+		path = RelativePathToOSPath( "renderprogs/hlsl", shaderSearchPaths[i] );
+		ListOSFiles( path, "*.v360", work );
+		for ( int i = 0; i < work.Num(); i++ ) {
+			files.Append( idStr( "renderprogs/hlsl/" ) + work[ i ] );
+		}
+		ListOSFiles( path, "*.p360", work );
+		for ( int i = 0; i < work.Num(); i++ ) {
+			files.Append( idStr( "renderprogs/hlsl/" ) + work[ i ] );
+		}
 
+		path = RelativePathToOSPath( "renderprogs/gl", shaderSearchPaths[i] );
+		ListOSFiles( path, "*.*", work );
+		for ( int i = 0; i < work.Num(); i++ ) {
+			files.Append( idStr( "renderprogs/gl/" ) + work[ i ] );
+		}
+	}
 }
 
 /*
@@ -1473,6 +1482,7 @@ const char *idFileSystemLocal::OSPathToRelativePath( const char *OSPath ) {
 	basePaths.Append( "base" );
 	basePaths.Append( "d3xp" );
 	basePaths.Append( "d3le" );
+
 	if ( fs_game.GetString()[0] != 0 ) {
 		basePaths.Append( fs_game.GetString() );
 	}
@@ -1605,15 +1615,6 @@ int idFileSystemLocal::ReadFile( const char *relativePath, void **buffer, ID_TIM
 		*buffer = NULL;
 	} 
 
-	if ( buffer == NULL && timestamp != NULL && resourceFiles.Num() > 0 ) {
-		static idResourceCacheEntry rc;
-		int size = 0;
-		if ( GetResourceCacheEntry( relativePath, rc ) ) {
-			*timestamp = 0;
-			size = rc.length;
-		} 
-		return size;
-	}
 
 	buf = NULL;	// quiet compiler warning
 
@@ -1653,6 +1654,16 @@ int idFileSystemLocal::ReadFile( const char *relativePath, void **buffer, ID_TIM
 	// look for it in the filesystem or pack files
 	f = OpenFileRead( relativePath, ( buffer != NULL ) );
 	if ( f == NULL ) {
+		if ( buffer == NULL && timestamp != NULL && resourceFiles.Num() > 0 ) {
+			static idResourceCacheEntry rc;
+			int size = 0;
+			if ( GetResourceCacheEntry( relativePath, rc ) ) {
+				*timestamp = 0;
+				size = rc.length;
+			} 
+			return size;
+		}
+
 		if ( buffer ) {
 			*buffer = NULL;
 		}
@@ -2483,6 +2494,10 @@ void idFileSystemLocal::SetupGameDirectories( const char *gameName ) {
 	if ( fs_savepath.GetString()[0] ) {
 		AddGameDirectory( fs_savepath.GetString(), gameName );
 	}
+	// Setup shaderOverridePath
+	if ( fs_shaderOverridePath.GetString()[ 0 ] ) {
+		AddGameDirectory( fs_shaderOverridePath.GetString(), gameName );
+	}
 }
 
 
@@ -2601,6 +2616,7 @@ void idFileSystemLocal::Init() {
 	common->StartupVariable( "fs_game" );
 	common->StartupVariable( "fs_game_base" );
 	common->StartupVariable( "fs_copyfiles" );
+	common->StartupVariable( "fs_shaderOverridePath" );
 
 	if ( fs_basepath.GetString()[0] == '\0' ) {
 		fs_basepath.SetString( Sys_DefaultBasePath() );
