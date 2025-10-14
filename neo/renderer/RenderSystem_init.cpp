@@ -545,9 +545,12 @@ static void R_CheckPortableExtensions() {
 	// GL_ARB_timer_query
 	glConfig.timerQueryAvailable = R_CheckExtension( "GL_ARB_timer_query" ) || R_CheckExtension( "GL_EXT_timer_query" );
 	if ( glConfig.timerQueryAvailable ) {
-		qglGetQueryObjectui64vEXT = (PFNGLGETQUERYOBJECTUI64VEXTPROC)GLimp_ExtensionPointer( "glGetQueryObjectui64vARB" );
+		qglGetQueryObjectui64vEXT = (PFNGLGETQUERYOBJECTUI64VEXTPROC)GLimp_ExtensionPointer( "glGetQueryObjectui64v" );
 		if ( qglGetQueryObjectui64vEXT == NULL ) {
-			qglGetQueryObjectui64vEXT = (PFNGLGETQUERYOBJECTUI64VEXTPROC)GLimp_ExtensionPointer( "glGetQueryObjectui64vEXT" );
+			qglGetQueryObjectui64vEXT = ( PFNGLGETQUERYOBJECTUI64VEXTPROC ) GLimp_ExtensionPointer( "glGetQueryObjectui64vARB" );
+			if ( qglGetQueryObjectui64vEXT == NULL ) {
+				qglGetQueryObjectui64vEXT = ( PFNGLGETQUERYOBJECTUI64VEXTPROC ) GLimp_ExtensionPointer( "glGetQueryObjectui64vEXT" );
+			}
 		}
 	}
 
