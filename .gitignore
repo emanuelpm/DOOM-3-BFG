@@ -4,3 +4,8 @@
 **/*.user
 
 build/
+
+# Hack for now
+neo/amplitude/Debug/*
+neo/amplitude/Release/*
+neo/amplitude/Retail/*
