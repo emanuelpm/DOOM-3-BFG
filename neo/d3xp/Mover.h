@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -157,7 +157,7 @@ private:
 	void					VectorForDir( float dir, idVec3 &vec );
 	idCurve_Spline<idVec3> *GetSpline( idEntity *splineEntity ) const;
 
-	void					Event_SetCallback();	
+	void					Event_SetCallback();
 	void					Event_TeamBlocked( idEntity *blockedPart, idEntity *blockingEntity );
 	void					Event_StopMoving();
 	void					Event_StopRotating();
@@ -410,7 +410,9 @@ private:
 	int						nextSndTriggerTime;
 	idVec3					localTriggerOrigin;
 	idMat3					localTriggerAxis;
-	idStr					requires;
+// EPM_BEGIN - #Modernization pass
+	idStr					requirement;
+// EPM_END
 	int						removeItem;
 	idStr					syncLock;
 	int						normalAxisIndex;		// door faces X or Y for spectator teleports
@@ -442,7 +444,7 @@ private:
 class idPlat : public idMover_Binary {
 public:
 	CLASS_PROTOTYPE( idPlat );
-	
+
 							idPlat();
 							~idPlat();
 
@@ -485,7 +487,7 @@ public:
 							idMover_Periodic();
 
 	void					Spawn();
-	
+
 	void					Save( idSaveGame *savefile ) const;
 	void					Restore( idRestoreGame *savefile );
 

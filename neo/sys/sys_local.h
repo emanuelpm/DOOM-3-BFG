@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -61,9 +61,11 @@ public:
 	virtual bool			LockMemory( void *ptr, int bytes );
 	virtual bool			UnlockMemory( void *ptr, int bytes );
 
-	virtual int				DLL_Load( const char *dllName );
-	virtual void *			DLL_GetProcAddress( int dllHandle, const char *procName );
-	virtual void			DLL_Unload( int dllHandle );
+// EPM_BEGIN - #64Bit support
+	virtual intptr_t		DLL_Load( const char *dllName );
+	virtual void *			DLL_GetProcAddress( intptr_t dllHandle, const char *procName );
+	virtual void			DLL_Unload( intptr_t dllHandle );
+// EPM_END
 	virtual void			DLL_GetFileName( const char *baseName, char *dllName, int maxLength );
 
 	virtual sysEvent_t		GenerateMouseButtonEvent( int button, bool down );

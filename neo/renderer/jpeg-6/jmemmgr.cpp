@@ -132,7 +132,9 @@ typedef struct {
     jvirt_barray_ptr virt_barray_list;
 
     /* This counts total space obtained from jpeg_get_small/large */
-    long total_space_allocated;
+// EPM_BEGIN - #64Bit support
+    size_t total_space_allocated;
+// EPM_END
 
     /* alloc_sarray and alloc_barray set this value for use by virtual
      * array routines.
@@ -595,8 +597,10 @@ METHODDEF void
 realize_virt_arrays( j_common_ptr cinfo ) {
 /* Allocate the in-memory buffers for any unrealized virtual arrays */
     my_mem_ptr mem = (my_mem_ptr) cinfo->mem;
-    long space_per_minheight, maximum_space, avail_mem;
-    long minheights, max_minheights;
+// EPM_BEGIN - #64Bit support
+    size_t space_per_minheight, maximum_space, avail_mem;
+    size_t minheights, max_minheights;
+// EPM_END
     jvirt_sarray_ptr sptr;
     jvirt_barray_ptr bptr;
 

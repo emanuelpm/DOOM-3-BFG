@@ -97,10 +97,12 @@ typedef struct {		/* Bitreading working state within an MCU */
 } bitread_working_state;
 
 /* Macros to declare and load/save bitread local variables. */
+// EPM_BEGIN - #Modernization pass
 #define BITREAD_STATE_VARS  \
-	register bit_buf_type get_buffer;  \
-	register int bits_left;  \
+	bit_buf_type get_buffer;  \
+	int bits_left;  \
 	bitread_working_state br_state
+// EPM_END
 
 #define BITREAD_LOAD_STATE(cinfop,permstate)  \
 	br_state.cinfo = cinfop; \
@@ -153,7 +155,9 @@ typedef struct {		/* Bitreading working state within an MCU */
 
 /* Load up the bit buffer to a depth of at least nbits */
 EXTERN boolean jpeg_fill_bit_buffer JPP((bitread_working_state * state,
-		register bit_buf_type get_buffer, register int bits_left,
+// EPM_BEGIN - #Modernization pass
+		bit_buf_type get_buffer, int bits_left,
+// EPM_END
 		int nbits));
 
 
@@ -174,8 +178,9 @@ EXTERN boolean jpeg_fill_bit_buffer JPP((bitread_working_state * state,
  * 3. jpeg_huff_decode returns -1 if forced to suspend.
  */
 
+// EPM_BEGIN - #Modernization pass
 #define HUFF_DECODE(result,state,htbl,failaction,slowlabel) \
-{ register int nb, look; \
+{ int nb, look; \
   if (bits_left < HUFF_LOOKAHEAD) { \
     if (! jpeg_fill_bit_buffer(&state,get_buffer,bits_left, 0)) {failaction;} \
     get_buffer = state.get_buffer; bits_left = state.bits_left; \
@@ -195,8 +200,11 @@ slowlabel: \
     get_buffer = state.get_buffer; bits_left = state.bits_left; \
   } \
 }
+// EPM_END
 
 /* Out-of-line case for Huffman code fetching */
 EXTERN int jpeg_huff_decode JPP((bitread_working_state * state,
-		register bit_buf_type get_buffer, register int bits_left,
+// EPM_BEGIN - #Modernization pass
+		bit_buf_type get_buffer, int bits_left,
+// EPM_END
 		d_derived_tbl * htbl, int min_bits));

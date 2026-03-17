@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -93,15 +93,21 @@ idEventDef::idEventDef( const char *command, const char *formatspec, char return
 		switch( formatspec[ i ] ) {
 		case D_EVENT_FLOAT :
 			bits |= 1 << i;
-			argsize += sizeof( float );
+// EPM_BEGIN - #64Bit support
+			argsize += sizeof( intptr_t );
+// EPM_END
 			break;
 
 		case D_EVENT_INTEGER :
-			argsize += sizeof( int );
+// EPM_BEGIN - #64Bit support
+			argsize += sizeof( intptr_t );
+// EPM_END
 			break;
 
 		case D_EVENT_VECTOR :
-			argsize += sizeof( idVec3 );
+// EPM_BEGIN - #64Bit support
+			argsize += D_EVENT_VECTOR_SIZE;
+// EPM_END
 			break;
 
 		case D_EVENT_STRING :
@@ -109,11 +115,15 @@ idEventDef::idEventDef( const char *command, const char *formatspec, char return
 			break;
 
 		case D_EVENT_ENTITY :
-			argsize += sizeof( idEntityPtr<idEntity> );
+// EPM_BEGIN - #64Bit support
+			argsize += sizeof( intptr_t );
+// EPM_END
 			break;
 
 		case D_EVENT_ENTITY_NULL :
-			argsize += sizeof( idEntityPtr<idEntity> );
+// EPM_BEGIN - #64Bit support
+			argsize += sizeof( intptr_t );
+// EPM_END
 			break;
 
 		case D_EVENT_TRACE :
@@ -334,7 +344,9 @@ idEvent *idEvent::Alloc( const idEventDef *evdef, int numargs, va_list args ) {
 idEvent::CopyArgs
 ================
 */
-void idEvent::CopyArgs( const idEventDef *evdef, int numargs, va_list args, int data[ D_EVENT_MAXARGS ] ) {
+// EPM_BEGIN - #64Bit support
+void idEvent::CopyArgs( const idEventDef *evdef, int numargs, va_list args, intptr_t data[ D_EVENT_MAXARGS ] ) {
+// EPM_END
 	int			i;
 	const char	*format;
 	idEventArg	*arg;
@@ -472,8 +484,8 @@ void idEvent::ClearEventList() {
 	//
 	FreeEvents.Clear();
 	EventQueue.Clear();
-   
-	// 
+
+	//
 	// add the events to the free list
 	//
 	for( i = 0; i < MAX_EVENTS; i++ ) {
@@ -489,7 +501,9 @@ idEvent::ServiceEvents
 void idEvent::ServiceEvents() {
 	idEvent		*event;
 	int			num;
-	int			args[ D_EVENT_MAXARGS ];
+// EPM_BEGIN - #64Bit support
+	intptr_t	args[ D_EVENT_MAXARGS ];
+// EPM_END
 	int			offset;
 	int			i;
 	int			numargs;
@@ -590,7 +604,9 @@ idEvent::ServiceFastEvents
 void idEvent::ServiceFastEvents() {
 	idEvent	*event;
 	int		num;
-	int			args[ D_EVENT_MAXARGS ];
+// EPM_BEGIN - #64Bit support
+	intptr_t	args[ D_EVENT_MAXARGS ];
+// EPM_END
 	int			offset;
 	int			i;
 	int			numargs;
@@ -729,7 +745,7 @@ void idEvent::Shutdown() {
 	}
 
 	ClearEventList();
-	
+
 	eventDataAllocator.Shutdown();
 
 	// say it is now shutdown
@@ -764,17 +780,28 @@ void idEvent::Save( idSaveGame *savefile ) {
 			switch( format[ i ] ) {
 				case D_EVENT_FLOAT :
 					savefile->WriteFloat( *reinterpret_cast<float *>( dataPtr ) );
-					size += sizeof( float );
+// EPM_BEGIN - #64Bit support
+					size += sizeof( intptr_t );
+// EPM_END
 					break;
 				case D_EVENT_INTEGER :
+// EPM_BEGIN - #64Bit support (taken from #RBDOOM)
+					savefile->WriteInt( *reinterpret_cast<int*>( dataPtr ) );
+					size += sizeof( intptr_t );
+					break;
+// EPM_END
 				case D_EVENT_ENTITY :
 				case D_EVENT_ENTITY_NULL :
-					savefile->WriteInt( *reinterpret_cast<int *>( dataPtr ) );
-					size += sizeof( int );
+// EPM_BEGIN - #64Bit support (taken from #RBDOOM)
+					reinterpret_cast< idEntityPtr<idEntity> * >( dataPtr )->Save( savefile );
+					size += sizeof( intptr_t );
+// EPM_END
 					break;
 				case D_EVENT_VECTOR :
 					savefile->WriteVec3( *reinterpret_cast<idVec3 *>( dataPtr ) );
-					size += sizeof( idVec3 );
+// EPM_BEGIN - #64Bit support (taken from #RBDOOM)
+					size += D_EVENT_VECTOR_SIZE;
+// EPM_END
 					break;
 				case D_EVENT_TRACE :
 					validTrace = *reinterpret_cast<bool *>( dataPtr );
@@ -873,17 +900,28 @@ void idEvent::Restore( idRestoreGame *savefile ) {
 				switch( format[ j ] ) {
 					case D_EVENT_FLOAT :
 						savefile->ReadFloat( *reinterpret_cast<float *>( dataPtr ) );
-						size += sizeof( float );
+// EPM_BEGIN - #64Bit support
+						size += sizeof( intptr_t );
+// EPM_END
 						break;
 					case D_EVENT_INTEGER :
+// EPM_BEGIN - #64Bit support (taken from #RBDOOM)
+						savefile->ReadInt( *reinterpret_cast<int*>( dataPtr ) );
+						size += sizeof( intptr_t );
+// EPM_END
+						break;
 					case D_EVENT_ENTITY :
 					case D_EVENT_ENTITY_NULL :
-						savefile->ReadInt( *reinterpret_cast<int *>( dataPtr ) );
-						size += sizeof( int );
+// EPM_BEGIN - #64Bit support (taken from #RBDOOM)
+						reinterpret_cast<idEntityPtr<idEntity> *>( dataPtr )->Restore( savefile );
+						size += sizeof( intptr_t );
+// EPM_END
 						break;
 					case D_EVENT_VECTOR :
 						savefile->ReadVec3( *reinterpret_cast<idVec3 *>( dataPtr ) );
-						size += sizeof( idVec3 );
+// EPM_BEGIN - #64Bit support (taken from #RBDOOM)
+						size += D_EVENT_VECTOR_SIZE;
+// EPM_END
 						break;
 					case D_EVENT_TRACE :
 						savefile->ReadBool( *reinterpret_cast<bool *>( dataPtr ) );
@@ -958,7 +996,7 @@ void idEvent::Restore( idRestoreGame *savefile ) {
 /*
  ================
  idEvent::ReadTrace
- 
+
  idRestoreGame has a ReadTrace procedure, but unfortunately idEvent wants the material
  string name at the of the data structure rather than in the middle
  ================
@@ -1040,8 +1078,10 @@ void CreateEventCallbackHandler() {
 					string1 += "const float";
 					string2 += va( "*( float * )&data[ %d ]", k );
 				} else {
-					string1 += "void *";
-					string2 += va( "(void *)data[ %d ]", k );
+// EPM_BEGIN - #64Bit support (taken from #RBDOOM)
+					string1 += "const intptr_t";
+					string2 += va( "data[ %d ]", k );
+// EPM_END
 				}
 
 				if ( k < i - 1 ) {

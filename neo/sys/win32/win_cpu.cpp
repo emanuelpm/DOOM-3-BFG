@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -48,12 +48,14 @@ Sys_GetClockTicks
 ================
 */
 double Sys_GetClockTicks() {
-#if 0
+// EPM_BEGIN - #64Bit support
+#if defined(ID_WIN64)
 
 	LARGE_INTEGER li;
 
 	QueryPerformanceCounter( &li );
-	return = (double ) li.LowPart + (double) 0xFFFFFFFF * li.HighPart;
+	return (double ) li.LowPart + (double) 0xFFFFFFFF * li.HighPart;
+// EPM_END
 
 #else
 
@@ -80,7 +82,9 @@ Sys_ClockTicksPerSecond
 */
 double Sys_ClockTicksPerSecond() {
 	static double ticks = 0;
-#if 0
+// EPM_BEGIN - #64Bit support
+#if defined(ID_WIN64)
+// EPM_END
 
 	if ( !ticks ) {
 		LARGE_INTEGER li;
@@ -126,71 +130,22 @@ double Sys_ClockTicksPerSecond() {
 ==============================================================
 */
 
-/*
-================
-HasCPUID
-================
-*/
-static bool HasCPUID() {
-	__asm 
-	{
-		pushfd						// save eflags
-		pop		eax
-		test	eax, 0x00200000		// check ID bit
-		jz		set21				// bit 21 is not set, so jump to set_21
-		and		eax, 0xffdfffff		// clear bit 21
-		push	eax					// save new value in register
-		popfd						// store new value in flags
-		pushfd
-		pop		eax
-		test	eax, 0x00200000		// check ID bit
-		jz		good
-		jmp		err					// cpuid not supported
-set21:
-		or		eax, 0x00200000		// set ID bit
-		push	eax					// store new value
-		popfd						// store new value in EFLAGS
-		pushfd
-		pop		eax
-		test	eax, 0x00200000		// if bit 21 is on
-		jnz		good
-		jmp		err
-	}
-
-err:
-	return false;
-good:
-	return true;
-}
-
 #define _REG_EAX		0
 #define _REG_EBX		1
 #define _REG_ECX		2
 #define _REG_EDX		3
 
-/*
-================
-CPUID
-================
-*/
-static void CPUID( int func, unsigned regs[4] ) {
-	unsigned regEAX, regEBX, regECX, regEDX;
-
-	__asm pusha
-	__asm mov eax, func
-	__asm __emit 00fh
-	__asm __emit 0a2h
-	__asm mov regEAX, eax
-	__asm mov regEBX, ebx
-	__asm mov regECX, ecx
-	__asm mov regEDX, edx
-	__asm popa
-
-	regs[_REG_EAX] = regEAX;
-	regs[_REG_EBX] = regEBX;
-	regs[_REG_ECX] = regECX;
-	regs[_REG_EDX] = regEDX;
-}
+// EPM_BEGIN - #64Bit support
+#ifdef _MSC_VER
+	#include <intrin.h>
+	#define CPUID(leaf, info) 				__cpuid(info, leaf)
+	#define CPUIDEX(info, leaf, subleaf)	__cpuidex(info, leaf, subleaf)
+#else
+	#include <cpuid.h>
+	#define CPUID(leaf, info)				__cpuid(leaf, info[0], info[1], info[2], info[3])
+	#define CPUIDEX(leaf, info, subleaf)	__cpuid_count(leaf, subleaf, info[0], info[1], info[2], info[3])
+#endif
+// EPM_END
 
 
 /*
@@ -198,6 +153,10 @@ static void CPUID( int func, unsigned regs[4] ) {
 IsAMD
 ================
 */
+// EPM_BEGIN - #64Bit support
+#if !defined(ID_WIN64)
+// EPM_END
+
 static bool IsAMD() {
 	char pstring[16];
 	char processorString[13];
@@ -224,11 +183,19 @@ static bool IsAMD() {
 	return false;
 }
 
+// EPM_BEGIN - #64Bit support
+#endif
+// EPM_END
+
 /*
 ================
 HasCMOV
 ================
 */
+// EPM_BEGIN - #64Bit support
+#if !defined(ID_WIN64)
+// EPM_END
+
 static bool HasCMOV() {
 	unsigned regs[4];
 
@@ -242,13 +209,21 @@ static bool HasCMOV() {
 	return false;
 }
 
+// EPM_BEGIN - #64Bit support
+#endif
+// EPM_END
+
 /*
 ================
 Has3DNow
 ================
 */
+// EPM_BEGIN - #64Bit support
+#if !defined(ID_WIN64)
+// EPM_END
+
 static bool Has3DNow() {
-	unsigned regs[4];
+	int regs[4];
 
 	// check AMD-specific functions
 	CPUID( 0x80000000, regs );
@@ -265,11 +240,19 @@ static bool Has3DNow() {
 	return false;
 }
 
+// EPM_BEGIN - #64Bit support
+#endif
+// EPM_END
+
 /*
 ================
 HasMMX
 ================
 */
+// EPM_BEGIN - #64Bit support
+#if !defined(ID_WIN64)
+// EPM_END
+
 static bool HasMMX() {
 	unsigned regs[4];
 
@@ -283,11 +266,19 @@ static bool HasMMX() {
 	return false;
 }
 
+// EPM_BEGIN - #64Bit support
+#endif
+// EPM_END
+
 /*
 ================
 HasSSE
 ================
 */
+// EPM_BEGIN - #64Bit support
+#if !defined(ID_WIN64)
+// EPM_END
+
 static bool HasSSE() {
 	unsigned regs[4];
 
@@ -301,11 +292,19 @@ static bool HasSSE() {
 	return false;
 }
 
+// EPM_BEGIN - #64Bit support
+#endif
+// EPM_END
+
 /*
 ================
 HasSSE2
 ================
 */
+// EPM_BEGIN - #64Bit support
+#if !defined(ID_WIN64)
+// EPM_END
+
 static bool HasSSE2() {
 	unsigned regs[4];
 
@@ -319,11 +318,19 @@ static bool HasSSE2() {
 	return false;
 }
 
+// EPM_BEGIN - #64Bit support
+#endif
+// EPM_END
+
 /*
 ================
 HasSSE3
 ================
 */
+// EPM_BEGIN - #64Bit support
+#if !defined(ID_WIN64)
+// EPM_END
+
 static bool HasSSE3() {
 	unsigned regs[4];
 
@@ -337,13 +344,21 @@ static bool HasSSE3() {
 	return false;
 }
 
+// EPM_BEGIN - #64Bit support
+#endif
+// EPM_END
+
 /*
 ================
 LogicalProcPerPhysicalProc
 ================
 */
+// EPM_BEGIN - #64Bit support
+#if !defined(ID_WIN64)
+// EPM_END
+
 #define NUM_LOGICAL_BITS   0x00FF0000     // EBX[23:16] Bit 16-23 in ebx contains the number of logical
-                                          // processors per physical processor when execute cpuid with 
+                                          // processors per physical processor when execute cpuid with
                                           // eax set to 1
 static unsigned char LogicalProcPerPhysicalProc() {
 	unsigned int regebx = 0;
@@ -355,12 +370,20 @@ static unsigned char LogicalProcPerPhysicalProc() {
 	return (unsigned char) ((regebx & NUM_LOGICAL_BITS) >> 16);
 }
 
+// EPM_BEGIN - #64Bit support
+#endif
+// EPM_END
+
 /*
 ================
 GetAPIC_ID
 ================
 */
-#define INITIAL_APIC_ID_BITS  0xFF000000  // EBX[31:24] Bits 24-31 (8 bits) return the 8-bit unique 
+// EPM_BEGIN - #64Bit support
+#if !defined(ID_WIN64)
+// EPM_END
+
+#define INITIAL_APIC_ID_BITS  0xFF000000  // EBX[31:24] Bits 24-31 (8 bits) return the 8-bit unique
                                           // initial APIC ID for the processor this code is running on.
                                           // Default value = 0xff if HT is not supported
 static unsigned char GetAPIC_ID() {
@@ -373,6 +396,10 @@ static unsigned char GetAPIC_ID() {
 	return (unsigned char) ((regebx & INITIAL_APIC_ID_BITS) >> 24);
 }
 
+// EPM_BEGIN - #64Bit support
+#endif
+// EPM_END
+
 /*
 ================
 CPUCount
@@ -382,6 +409,10 @@ CPUCount
 	returns one of the HT_* flags
 ================
 */
+// EPM_BEGIN - #64Bit support
+#if !defined(ID_WIN64)
+// EPM_END
+
 #define HT_NOT_CAPABLE				0
 #define HT_ENABLED					1
 #define HT_DISABLED					2
@@ -401,7 +432,7 @@ int CPUCount( int &logicalNum, int &physicalNum ) {
 
 	// Number of physical processors in a non-Intel system
 	// or in a 32-bit Intel system with Hyper-Threading technology disabled
-	physicalNum = info.dwNumberOfProcessors;  
+	physicalNum = info.dwNumberOfProcessors;
 
 	unsigned char HT_Enabled = 0;
 
@@ -413,7 +444,7 @@ int CPUCount( int &logicalNum, int &physicalNum ) {
 		DWORD  dwSystemAffinity;
 		DWORD  dwAffinityMask;
 
-		// Calculate the appropriate  shifts and mask based on the 
+		// Calculate the appropriate  shifts and mask based on the
 		// number of logical processors.
 
 		unsigned char i = 1, PHY_ID_MASK  = 0xFF, PHY_ID_SHIFT = 0;
@@ -423,7 +454,7 @@ int CPUCount( int &logicalNum, int &physicalNum ) {
  			PHY_ID_MASK  <<= 1;
 			PHY_ID_SHIFT++;
 		}
-		
+
 		hCurrentProcessHandle = GetCurrentProcess();
 		GetProcessAffinityMask( hCurrentProcessHandle, &dwProcessAffinity, &dwSystemAffinity );
 
@@ -455,10 +486,10 @@ int CPUCount( int &logicalNum, int &physicalNum ) {
 			}
 			dwAffinityMask = dwAffinityMask << 1;
 		}
-	        
+
 		// Reset the processor affinity
 		SetProcessAffinityMask( hCurrentProcessHandle, dwProcessAffinity );
-	    
+
 		if ( logicalNum == 1 ) {  // Normal P4 : HT is disabled in hardware
 			statusFlag = HT_DISABLED;
 		} else {
@@ -474,11 +505,19 @@ int CPUCount( int &logicalNum, int &physicalNum ) {
 	return statusFlag;
 }
 
+// EPM_BEGIN - #64Bit support
+#endif
+// EPM_END
+
 /*
 ================
 HasHTT
 ================
 */
+// EPM_BEGIN - #64Bit support
+#if !defined(ID_WIN64)
+// EPM_END
+
 static bool HasHTT() {
 	unsigned regs[4];
 	int logicalNum, physicalNum, HTStatusFlag;
@@ -498,11 +537,19 @@ static bool HasHTT() {
 	return true;
 }
 
+// EPM_BEGIN - #64Bit support
+#endif
+// EPM_END
+
 /*
 ================
-HasHTT
+HasDAZ
 ================
 */
+// EPM_BEGIN - #64Bit support
+#if !defined(ID_WIN64)
+// EPM_END
+
 static bool HasDAZ() {
 	__declspec(align(16)) unsigned char FXSaveArea[512];
 	unsigned char *FXArea = FXSaveArea;
@@ -528,6 +575,10 @@ static bool HasDAZ() {
 	return ( ( dwMask & ( 1 << 6 ) ) == ( 1 << 6 ) );	// Return if the DAZ bit is set
 }
 
+// EPM_BEGIN - #64Bit support
+#endif
+// EPM_END
+
 /*
 ================================================================================================
 
@@ -538,14 +589,14 @@ static bool HasDAZ() {
 
 /*
 ========================
-CountSetBits 
+CountSetBits
 Helper function to count set bits in the processor mask.
 ========================
 */
 DWORD CountSetBits( ULONG_PTR bitMask ) {
 	DWORD LSHIFT = sizeof( ULONG_PTR ) * 8 - 1;
 	DWORD bitSetCount = 0;
-	ULONG_PTR bitTest = (ULONG_PTR)1 << LSHIFT;    
+	ULONG_PTR bitTest = (ULONG_PTR)1 << LSHIFT;
 
 	for ( DWORD i = 0; i <= LSHIFT; i++ ) {
 		bitSetCount += ( ( bitMask & bitTest ) ? 1 : 0 );
@@ -635,7 +686,7 @@ bool GetCPUInfo( cpuInfo_t & cpuInfo ) {
 				break;
 
 			case localRelationCache:
-				// Cache data is in ptr->Cache, one CACHE_DESCRIPTOR structure for each cache. 
+				// Cache data is in ptr->Cache, one CACHE_DESCRIPTOR structure for each cache.
 				Cache = &ptr->Cache;
 				if ( Cache->Level >= 1 && Cache->Level <= 3 ) {
 					int level = Cache->Level - 1;
@@ -707,6 +758,15 @@ Sys_GetCPUId
 ================
 */
 cpuid_t Sys_GetCPUId() {
+// EPM_BEGIN - #64Bit support
+#if defined(ID_WIN64)
+
+	// #TODO(emanuel): Make this work properly
+	constexpr int flags = CPUID_GENERIC | CPUID_SSE | CPUID_SSE2 | CPUID_SSE3;
+
+#else
+// EPM_END
+
 	int flags;
 
 	// verify we're at least a Pentium or 486 with CPUID support
@@ -761,6 +821,10 @@ cpuid_t Sys_GetCPUId() {
 		flags |= CPUID_DAZ;
 	}
 
+// EPM_BEGIN - #64Bit support
+#endif
+// EPM_END
+
 	return (cpuid_t)flags;
 }
 
@@ -774,8 +838,10 @@ cpuid_t Sys_GetCPUId() {
 */
 
 typedef struct bitFlag_s {
-	char *		name;
-	int			bit;
+// EPM_BEGIN - #Modernization pass
+	const char * name;
+	int			 bit;
+// EPM_END
 } bitFlag_t;
 
 static byte fpuState[128], *statePtr = fpuState;
@@ -790,13 +856,17 @@ static bitFlag_t controlWordFlags[] = {
 	{ "Infinity control", 12 },
 	{ "", 0 }
 };
-static char *precisionControlField[] = {
+// EPM_BEGIN - #Modernization pass
+static const char *precisionControlField[] = {
+// EPM_END
 	"Single Precision (24-bits)",
 	"Reserved",
 	"Double Precision (53-bits)",
 	"Double Extended Precision (64-bits)"
 };
-static char *roundingControlField[] = {
+// EPM_BEGIN - #Modernization pass
+static const char *roundingControlField[] = {
+// EPM_END
 	"Round to nearest",
 	"Round down",
 	"Round up",
@@ -856,6 +926,14 @@ Sys_FPU_StackIsEmpty
 ===============
 */
 bool Sys_FPU_StackIsEmpty() {
+// EPM_BEGIN - #64Bit support
+#if defined(ID_WIN64)
+
+	return true;
+
+#else
+// EPM_END
+
 	__asm {
 		mov			eax, statePtr
 		fnstenv		[eax]
@@ -867,6 +945,10 @@ bool Sys_FPU_StackIsEmpty() {
 	return false;
 empty:
 	return true;
+
+// EPM_BEGIN - #64Bit support
+#endif
+// EPM_END
 }
 
 /*
@@ -875,6 +957,10 @@ Sys_FPU_ClearStack
 ===============
 */
 void Sys_FPU_ClearStack() {
+// EPM_BEGIN - #64Bit support
+#if !defined(ID_WIN64)
+// EPM_END
+
 	__asm {
 		mov			eax, statePtr
 		fnstenv		[eax]
@@ -890,6 +976,10 @@ void Sys_FPU_ClearStack() {
 		jmp			emptyStack
 	done:
 	}
+
+// EPM_BEGIN - #64Bit support
+#endif
+// EPM_END
 }
 
 /*
@@ -900,6 +990,14 @@ Sys_FPU_GetState
 ===============
 */
 const char *Sys_FPU_GetState() {
+// EPM_BEGIN - #64Bit support
+#if defined(ID_WIN64)
+
+	return "#TODO(emanuel): Sys_FPU_GetState";
+
+#else
+// EPM_END
+
 	double fpuStack[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	double *fpuStackPtr = fpuStack;
 	int i, numValues;
@@ -996,6 +1094,10 @@ const char *Sys_FPU_GetState() {
 	Sys_FPU_PrintStateFlags( ptr, ctrl, stat, tags, inof, inse, opof, opse );
 
 	return fpuString;
+
+// EPM_BEGIN - #64Bit support
+#endif
+// EPM_END
 }
 
 /*
@@ -1004,6 +1106,10 @@ Sys_FPU_EnableExceptions
 ===============
 */
 void Sys_FPU_EnableExceptions( int exceptions ) {
+// EPM_BEGIN - #64Bit support
+#if !defined(ID_WIN64)
+// EPM_END
+
 	__asm {
 		mov			eax, statePtr
 		mov			ecx, exceptions
@@ -1016,6 +1122,10 @@ void Sys_FPU_EnableExceptions( int exceptions ) {
 		mov			word ptr [eax], bx
 		fldcw		word ptr [eax]
 	}
+
+// EPM_BEGIN - #64Bit support
+#endif
+// EPM_END
 }
 
 /*
@@ -1024,6 +1134,10 @@ Sys_FPU_SetPrecision
 ===============
 */
 void Sys_FPU_SetPrecision( int precision ) {
+// EPM_BEGIN - #64Bit support
+#if !defined(ID_WIN64)
+// EPM_END
+
 	short precisionBitTable[4] = { 0, 1, 3, 0 };
 	short precisionBits = precisionBitTable[precision & 3] << 8;
 	short precisionMask = ~( ( 1 << 9 ) | ( 1 << 8 ) );
@@ -1038,6 +1152,10 @@ void Sys_FPU_SetPrecision( int precision ) {
 		mov			word ptr [eax], bx
 		fldcw		word ptr [eax]
 	}
+
+// EPM_BEGIN - #64Bit support
+#endif
+// EPM_END
 }
 
 /*
@@ -1046,6 +1164,10 @@ Sys_FPU_SetRounding
 ================
 */
 void Sys_FPU_SetRounding( int rounding ) {
+// EPM_BEGIN - #64Bit support
+#if !defined(ID_WIN64)
+// EPM_END
+
 	short roundingBitTable[4] = { 0, 1, 2, 3 };
 	short roundingBits = roundingBitTable[rounding & 3] << 10;
 	short roundingMask = ~( ( 1 << 11 ) | ( 1 << 10 ) );
@@ -1060,6 +1182,10 @@ void Sys_FPU_SetRounding( int rounding ) {
 		mov			word ptr [eax], bx
 		fldcw		word ptr [eax]
 	}
+
+// EPM_BEGIN - #64Bit support
+#endif
+// EPM_END
 }
 
 /*
@@ -1068,6 +1194,10 @@ Sys_FPU_SetDAZ
 ================
 */
 void Sys_FPU_SetDAZ( bool enable ) {
+// EPM_BEGIN - #64Bit support
+#if !defined(ID_WIN64)
+// EPM_END
+
 	DWORD dwData;
 
 	_asm {
@@ -1081,6 +1211,10 @@ void Sys_FPU_SetDAZ( bool enable ) {
 		mov		dwData, eax
 		LDMXCSR	dword ptr dwData
 	}
+
+// EPM_BEGIN - #64Bit support
+#endif
+// EPM_END
 }
 
 /*
@@ -1089,6 +1223,10 @@ Sys_FPU_SetFTZ
 ================
 */
 void Sys_FPU_SetFTZ( bool enable ) {
+// EPM_BEGIN - #64Bit support
+#if !defined(ID_WIN64)
+// EPM_END
+
 	DWORD dwData;
 
 	_asm {
@@ -1102,4 +1240,8 @@ void Sys_FPU_SetFTZ( bool enable ) {
 		mov		dwData, eax
 		LDMXCSR	dword ptr dwData
 	}
+
+// EPM_BEGIN - #64Bit support
+#endif
+// EPM_END
 }

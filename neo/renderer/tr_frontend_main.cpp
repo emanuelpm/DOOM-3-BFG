@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -76,7 +76,9 @@ void R_ToggleSmpFrame() {
 	frameData = &smpFrameData[smpFrame % NUM_FRAME_DATA];
 
 	// reset the memory allocation
-	const unsigned int bytesNeededForAlignment = FRAME_ALLOC_ALIGNMENT - ( (unsigned int)frameData->frameMemory & ( FRAME_ALLOC_ALIGNMENT - 1 ) );
+// EPM_BEGIN - #64Bit support
+	const unsigned int bytesNeededForAlignment = FRAME_ALLOC_ALIGNMENT - ( (uintptr_t)frameData->frameMemory & ( FRAME_ALLOC_ALIGNMENT - 1 ) );
+// EPM_END
 	frameData->frameMemoryAllocated.SetValue( bytesNeededForAlignment );
 	frameData->frameMemoryUsed.SetValue( 0 );
 
@@ -243,7 +245,9 @@ static void R_SortDrawSurfs( drawSurf_t ** drawSurfs, const int numDrawSurfs ) {
 	// 3. index (largest first)
 	assert( numDrawSurfs <= 0xFFFF );
 	for ( int i = 0; i < numDrawSurfs; i++ ) {
-		float sort = SS_POST_PROCESS - drawSurfs[i]->sort;
+// EPM_BEGIN - #Modernization pass
+		float sort = static_cast<float>(SS_POST_PROCESS) - drawSurfs[i]->sort;
+// EPM_END
 		assert( sort >= 0.0f );
 
 		uint64 dist = 0;
@@ -253,7 +257,7 @@ static void R_SortDrawSurfs( drawSurf_t ** drawSurfs, const int numDrawSurfs ) {
 			idRenderMatrix::DepthBoundsForBounds( min, max, drawSurfs[i]->space->mvp, drawSurfs[i]->frontEndGeo->bounds );
 			dist = idMath::Ftoui16( min * 0xFFFF );
 		}
-		
+
 		indices[i] = ( ( numDrawSurfs - i ) & 0xFFFF ) | ( dist << 16 ) | ( (uint64) ( *(uint32 *)&sort ) << 32 );
 	}
 
@@ -262,15 +266,21 @@ static void R_SortDrawSurfs( drawSurf_t ** drawSurfs, const int numDrawSurfs ) {
 	int64 hi[MAX_LEVELS];
 
 	// Keep the top of the stack in registers to avoid load-hit-stores.
-	register int64 st_lo = 0;
-	register int64 st_hi = numDrawSurfs - 1;
-	register int64 level = 0;
+// EPM_BEGIN - #Modernization pass
+	int64 st_lo = 0;
+	int64 st_hi = numDrawSurfs - 1;
+	int64 level = 0;
+// EPM_END
 
 	for ( ; ; ) {
-		register int64 i = st_lo;
-		register int64 j = st_hi;
+// EPM_BEGIN - #Modernization pass
+		int64 i = st_lo;
+		int64 j = st_hi;
+// EPM_END
 		if ( j - i >= 4 && level < MAX_LEVELS - 1 ) {
-			register uint64 pivot = indices[( i + j ) / 2];
+// EPM_BEGIN - #Modernization pass
+			uint64 pivot = indices[( i + j ) / 2];
+// EPM_END
 			do {
 				while ( indices[i] > pivot ) i++;
 				while ( indices[j] < pivot ) j--;
@@ -289,7 +299,9 @@ static void R_SortDrawSurfs( drawSurf_t ** drawSurfs, const int numDrawSurfs ) {
 			level++;
 		} else {
 			for( ; i < j; j-- ) {
-				register int64 m = i;
+// EPM_BEGIN - #Modernization pass
+				int64 m = i;
+// EPM_END
 				for ( int64 k = i + 1; k <= j; k++ ) {
 					if ( indices[k] < indices[m] ) {
 						m = k;

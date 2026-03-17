@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ If you have questions concerning this license or the applicable additional terms
 // is stored in vertical runs of opaque pixels (posts).
 // A column is composed of zero or more posts,
 // a patch or sprite is composed of zero or more columns.
-// 
+//
 
 
 
@@ -129,9 +129,9 @@ R_DrawColumnInCache
     int		position;
     byte*	source;
     byte*	dest;
-	
+
     dest = (byte *)cache + 3;
-	
+
     while (patch->topdelta != 0xff)
     {
 	source = (byte *)patch + 3;
@@ -149,8 +149,8 @@ R_DrawColumnInCache
 
 	if (count > 0)
 	    memcpy (cache + position, source, count);
-		
-	patch = (postColumn_t *)(  (byte *)patch + patch->length + 4); 
+
+	patch = (postColumn_t *)(  (byte *)patch + patch->length + 4);
     }
 }
 
@@ -166,7 +166,7 @@ void R_GenerateComposite (int texnum)
 {
     byte*			block;
     texture_t*		texture;
-    texpatch_t*		patch;	
+    texpatch_t*		patch;
     patch_t*		realpatch;
     int				x;
     int				x1;
@@ -175,19 +175,19 @@ void R_GenerateComposite (int texnum)
     postColumn_t*	patchcol;
     short*			collump;
     unsigned short*	colofs;
-	
+
     texture = ::g->s_textures[texnum];
 
     block = (byte*)DoomLib::Z_Malloc (::g->s_texturecompositesize[texnum],
-		      PU_CACHE_SHARED, 
-		      &::g->s_texturecomposite[texnum]);	
+		      PU_CACHE_SHARED,
+		      &::g->s_texturecomposite[texnum]);
 
     collump = ::g->s_texturecolumnlump[texnum];
     colofs = ::g->s_texturecolumnofs[texnum];
-    
+
     // Composite the columns together.
     patch = texture->patches;
-		
+
     for (i=0 , patch = texture->patches;
 	 i<texture->patchcount;
 	 i++, patch++)
@@ -200,7 +200,7 @@ void R_GenerateComposite (int texnum)
 	    x = 0;
 	else
 	    x = x1;
-	
+
 	if (x2 > texture->width)
 	    x2 = texture->width;
 
@@ -209,7 +209,7 @@ void R_GenerateComposite (int texnum)
 	    // Column does not have multiple patches?
 	    if (collump[x] >= 0)
 		continue;
-	    
+
 	    patchcol = (postColumn_t *)((byte *)realpatch
 				    + LONG(realpatch->columnofs[x-x1]));
 	    R_DrawColumnInCache (patchcol,
@@ -217,7 +217,7 @@ void R_GenerateComposite (int texnum)
 				 patch->originy,
 				 texture->height);
 	}
-						
+
     }
 }
 
@@ -229,7 +229,7 @@ void R_GenerateComposite (int texnum)
 void R_GenerateLookup (int texnum)
 {
     texture_t*		texture;
-    texpatch_t*		patch;	
+    texpatch_t*		patch;
     patch_t*		realpatch;
     int			x;
     int			x1;
@@ -237,23 +237,23 @@ void R_GenerateLookup (int texnum)
     int			i;
     short*		collump;
     unsigned short*	colofs;
-	
+
     texture = ::g->s_textures[texnum];
 
     // Composited texture not created yet.
     ::g->s_texturecomposite[texnum] = 0;
-    
+
     ::g->s_texturecompositesize[texnum] = 0;
     collump = ::g->s_texturecolumnlump[texnum];
     colofs = ::g->s_texturecolumnofs[texnum];
-    
+
     // Now count the number of columns
     //  that are covered by more than one patch.
     // Fill in the lump / offset, so columns
     //  with only a single patch are all done.
     std::vector<byte> patchcount(texture->width, 0);
     patch = texture->patches;
-		
+
     for (i=0 , patch = texture->patches;
 	 i<texture->patchcount;
 	 i++, patch++)
@@ -261,7 +261,7 @@ void R_GenerateLookup (int texnum)
 	realpatch = (patch_t*)W_CacheLumpNum (patch->patch, PU_CACHE_SHARED);
 	x1 = patch->originx;
 	x2 = x1 + SHORT(realpatch->width);
-	
+
 	if (x1 < 0)
 	    x = 0;
 	else
@@ -276,7 +276,7 @@ void R_GenerateLookup (int texnum)
 	    colofs[x] = LONG(realpatch->columnofs[x-x1])+3;
 	}
     }
-	
+
     for (x=0 ; x<texture->width ; x++)
     {
 	if (!patchcount[x])
@@ -286,22 +286,22 @@ void R_GenerateLookup (int texnum)
 	    return;
 	}
 	// I_Error ("R_GenerateLookup: column without a patch");
-	
+
 	if (patchcount[x] > 1)
 	{
 	    // Use the cached block.
-	    collump[x] = -1;	
+	    collump[x] = -1;
 	    colofs[x] = ::g->s_texturecompositesize[texnum];
-	    
+
 	    if (::g->s_texturecompositesize[texnum] > 0x10000-texture->height)
 	    {
 		I_Error ("R_GenerateLookup: texture %i is >64k",
 			 texnum);
 	    }
-	    
+
 	    ::g->s_texturecompositesize[texnum] += texture->height;
 	}
-    }	
+    }
 }
 
 
@@ -317,11 +317,11 @@ R_GetColumn
 {
     int		lump;
     int		ofs;
-	
+
     col &= ::g->s_texturewidthmask[tex];
     lump = ::g->s_texturecolumnlump[tex][col];
     ofs = ::g->s_texturecolumnofs[tex][col];
-    
+
     if (lump > 0)
 	return (byte *)W_CacheLumpNum(lump,PU_CACHE_SHARED)+ofs;
 
@@ -352,11 +352,11 @@ void R_InitTextures (void)
     int*		maptex;
     int*		maptex2;
     int*		maptex1;
-    
+
     char		name[9];
     char*		names;
     char*		name_p;
-    
+
     int			totalwidth;
     int			nummappatches;
     int			offset;
@@ -366,18 +366,18 @@ void R_InitTextures (void)
     int			numtextures2;
 
     int*		directory;
-    
+
     int			temp1;
     int			temp2;
     int			temp3;
 
-    
+
     // Load the patch names from pnames.lmp.
-    name[8] = 0;	
+    name[8] = 0;
     names = (char*)W_CacheLumpName ("PNAMES", PU_CACHE_SHARED);
     nummappatches = LONG ( *((int *)names) );
     name_p = names+4;
-    
+
 	std::vector<int> patchlookup(nummappatches);
 
     for (i=0 ; i<nummappatches ; i++)
@@ -386,7 +386,7 @@ void R_InitTextures (void)
 		patchlookup[i] = W_CheckNumForName (name);
     }
     Z_Free(names);
-    
+
 	if (::g->s_numtextures == 0)
 	{
 
@@ -414,12 +414,16 @@ void R_InitTextures (void)
 
 		::g->s_numtextures = numtextures1 + numtextures2;
 
-		::g->s_textures = (texture_t**)DoomLib::Z_Malloc (::g->s_numtextures*4, PU_STATIC_SHARED, 0);
-		::g->s_texturecolumnlump = (short**)DoomLib::Z_Malloc (::g->s_numtextures*4, PU_STATIC_SHARED, 0);
-		::g->s_texturecolumnofs = (unsigned short**)DoomLib::Z_Malloc (::g->s_numtextures*4, PU_STATIC_SHARED, 0);
+// EPM_BEGIN - #64Bit support
+		::g->s_textures = (texture_t**)DoomLib::Z_Malloc (::g->s_numtextures * sizeof(texture_t*), PU_STATIC_SHARED, 0);
+		::g->s_texturecolumnlump = (short** )DoomLib::Z_Malloc (::g->s_numtextures * sizeof(short*), PU_STATIC_SHARED, 0);
+		::g->s_texturecolumnofs = (unsigned short**)DoomLib::Z_Malloc (::g->s_numtextures * sizeof(unsigned short*), PU_STATIC_SHARED, 0);
+// EPM_END
 		::g->s_texturewidthmask = (int*)DoomLib::Z_Malloc (::g->s_numtextures*4, PU_STATIC_SHARED, 0);
 		::g->s_textureheight = (fixed_t*)DoomLib::Z_Malloc (::g->s_numtextures*4, PU_STATIC_SHARED, 0);
-		::g->s_texturecomposite = (byte**)DoomLib::Z_Malloc (::g->s_numtextures*4, PU_STATIC_SHARED, 0);
+// EPM_BEGIN - #64Bit support
+		::g->s_texturecomposite = (byte**)DoomLib::Z_Malloc (::g->s_numtextures * sizeof(byte*), PU_STATIC_SHARED, 0);
+// EPM_END
 		::g->s_texturecompositesize = (int*)DoomLib::Z_Malloc (::g->s_numtextures*4, PU_STATIC_SHARED, 0);
 
 		totalwidth = 0;
@@ -434,7 +438,7 @@ void R_InitTextures (void)
 		I_Printf("         ]");
 		for (i = 0; i < temp3; i++)
 			I_Printf("\x8");
-		I_Printf("\x8\x8\x8\x8\x8\x8\x8\x8\x8\x8");	
+		I_Printf("\x8\x8\x8\x8\x8\x8\x8\x8\x8\x8");
 
 		for (i=0 ; i < ::g->s_numtextures ; i++, directory++)
 		{
@@ -448,12 +452,12 @@ void R_InitTextures (void)
 				maxoff = maxoff2;
 				directory = maptex+1;
 			}
-		
+
 			offset = LONG(*directory);
 
 			if (offset > maxoff)
 				I_Error ("R_InitTextures: bad texture directory");
-		
+
 			mtexture = (maptexture_t *) ( (byte *)maptex + offset);
 
 			texture = ::g->s_textures[i] = (texture_t*)DoomLib::Z_Malloc (sizeof(texture_t)
@@ -477,7 +481,7 @@ void R_InitTextures (void)
 					I_Error ("R_InitTextures: Missing patch in texture %s",
 					texture->name);
 				}
-			}		
+			}
 			::g->s_texturecolumnlump[i] = (short*)DoomLib::Z_Malloc (texture->width*2, PU_STATIC_SHARED,0);
 			::g->s_texturecolumnofs[i] = (unsigned short*)DoomLib::Z_Malloc (texture->width*2, PU_STATIC_SHARED,0);
 
@@ -496,7 +500,7 @@ void R_InitTextures (void)
 			Z_Free(maptex2);
 
 
-		// Precalculate whatever possible.	
+		// Precalculate whatever possible.
 		for (i=0 ; i < ::g->s_numtextures ; i++)
 			R_GenerateLookup (i);
 	}
@@ -506,7 +510,7 @@ void R_InitTextures (void)
 	::g->texturetranslation = (int*)DoomLib::Z_Malloc ((::g->s_numtextures+1)*4, PU_STATIC, 0);
 
 	for (i=0 ; i < ::g->s_numtextures ; i++)
-		::g->texturetranslation[i] = i;	
+		::g->texturetranslation[i] = i;
 }
 
 
@@ -517,14 +521,14 @@ void R_InitTextures (void)
 void R_InitFlats (void)
 {
     int		i;
-	
+
     ::g->firstflat = W_GetNumForName ("F_START") + 1;
     ::g->lastflat = W_GetNumForName ("F_END") - 1;
     ::g->numflats = ::g->lastflat - ::g->firstflat + 1;
-	
+
     // Create translation table for global animation.
     ::g->flattranslation = (int*)DoomLib::Z_Malloc ((::g->numflats+1)*4, PU_STATIC, 0);
-    
+
     for (i=0 ; i < ::g->numflats ; i++)
 	::g->flattranslation[i] = i;
 }
@@ -540,15 +544,15 @@ void R_InitSpriteLumps (void)
 {
     int		i;
     patch_t	*patch;
-	
+
     ::g->firstspritelump = W_GetNumForName ("S_START") + 1;
     ::g->lastspritelump = W_GetNumForName ("S_END") - 1;
-    
+
     ::g->numspritelumps = ::g->lastspritelump - ::g->firstspritelump + 1;
     ::g->spritewidth = (fixed_t*)DoomLib::Z_Malloc (::g->numspritelumps*4, PU_STATIC, 0);
     ::g->spriteoffset = (fixed_t*)DoomLib::Z_Malloc (::g->numspritelumps*4, PU_STATIC, 0);
     ::g->spritetopoffset = (fixed_t*)DoomLib::Z_Malloc (::g->numspritelumps*4, PU_STATIC, 0);
-	
+
     for (i=0 ; i< ::g->numspritelumps ; i++)
     {
 	if (!(i&63))
@@ -569,14 +573,16 @@ void R_InitSpriteLumps (void)
 void R_InitColormaps (void)
 {
     int	lump, length;
-    
-    // Load in the light tables, 
+
+    // Load in the light tables,
     //  256 byte align tables.
-    lump = W_GetNumForName("COLORMAP"); 
-    length = W_LumpLength (lump) + 255; 
-    ::g->colormaps = (lighttable_t*)DoomLib::Z_Malloc (length, PU_STATIC, 0); 
-    ::g->colormaps = (byte *)( ((int)::g->colormaps + 255)&~0xff); 
-    W_ReadLump (lump,::g->colormaps); 
+    lump = W_GetNumForName("COLORMAP");
+    length = W_LumpLength (lump) + 255;
+    ::g->colormaps = (lighttable_t*)DoomLib::Z_Malloc (length, PU_STATIC, 0);
+// EPM_BEGIN - #64Bit support
+    ::g->colormaps = (byte *)( ((intptr_t)::g->colormaps + 255)&~0xff);
+// EPM_END
+    W_ReadLump (lump,::g->colormaps);
 }
 
 
@@ -634,13 +640,13 @@ int	R_CheckTextureNumForName (const char *name)
     int		i;
 
     // "NoTexture" marker.
-    if (name[0] == '-')		
+    if (name[0] == '-')
 	return 0;
-		
+
     for (i=0 ; i < ::g->s_numtextures ; i++)
 	if ( !idStr::Icmpn( ::g->s_textures[i]->name, name, 8 ) )
 	    return i;
-		
+
     return -1;
 }
 
@@ -654,7 +660,7 @@ int	R_CheckTextureNumForName (const char *name)
 int	R_TextureNumForName (const char* name)
 {
     int		i;
-	
+
     i = R_CheckTextureNumForName (name);
 
     if (i==-1)
@@ -679,23 +685,23 @@ void R_PrecacheLevel (void)
     int			j;
     int			k;
     int			lump;
-    
+
     texture_t*		texture;
     thinker_t*		th;
     spriteframe_t*	sf;
 
     if (::g->demoplayback)
 	return;
-    
+
     // Precache flats.
 	std::vector<char> flatpresent(::g->numflats, 0);
-    
+
     for (i=0 ; i < ::g->numsectors ; i++)
     {
 	flatpresent[::g->sectors[i].floorpic] = 1;
 	flatpresent[::g->sectors[i].ceilingpic] = 1;
     }
-	
+
     ::g->flatmemory = 0;
 
     for (i=0 ; i < ::g->numflats ; i++)
@@ -707,10 +713,10 @@ void R_PrecacheLevel (void)
 	    W_CacheLumpNum(lump, PU_CACHE_SHARED);
 	}
     }
-    
+
     // Precache textures.
     std::vector<char> texturepresent(::g->s_numtextures, 0);
-	
+
     for (i=0 ; i < ::g->numsides ; i++)
     {
 	texturepresent[::g->sides[i].toptexture] = 1;
@@ -725,7 +731,7 @@ void R_PrecacheLevel (void)
     //  a wall texture, with an episode dependend
     //  name.
     texturepresent[::g->skytexture] = 1;
-	
+
     ::g->texturememory = 0;
     for (i=0 ; i < ::g->s_numtextures ; i++)
     {
@@ -733,7 +739,7 @@ void R_PrecacheLevel (void)
 	    continue;
 
 	texture = ::g->s_textures[i];
-	
+
 	for (j=0 ; j<texture->patchcount ; j++)
 	{
 	    lump = texture->patches[j].patch;
@@ -741,16 +747,16 @@ void R_PrecacheLevel (void)
 	    W_CacheLumpNum(lump , PU_CACHE_SHARED);
 	}
     }
-    
+
     // Precache ::g->sprites.
     std::vector<char> spritepresent(::g->numsprites, 0);
-	
+
     for (th = ::g->thinkercap.next ; th != &::g->thinkercap ; th=th->next)
     {
 	if (th->function.acp1 == (actionf_p1)P_MobjThinker)
 	    spritepresent[((mobj_t *)th)->sprite] = 1;
     }
-	
+
     ::g->spritememory = 0;
     for (i=0 ; i < ::g->numsprites ; i++)
     {

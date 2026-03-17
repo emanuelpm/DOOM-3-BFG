@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -2210,7 +2210,9 @@ int lwGetPolygons5( idFile *fp, int cksize, lwPolygonList *plist, int ptoffset )
          bp += 2;
       }
       j -= 1;
-      pp->surf = ( lwSurface * ) j;
+// EPM_BEGIN - #64Bit support (taken from #RBDOOM)
+      pp->surf.index = j;
+// EPM_END
 
       pp++;
       pv += nv;
@@ -2708,7 +2710,10 @@ int lwResolvePolySurfaces( lwPolygonList *polygon, lwTagList *tlist,
    lwSurface **surf, int *nsurfs )
 {
    lwSurface **s, *st;
-   int i, index;
+// EPM_BEGIN - #64Bit support (taken from #RBDOOM)
+   intptr_t index;
+   int i;
+// EPM_END
 
    if ( tlist->count == 0 ) return 1;
 
@@ -2727,7 +2732,9 @@ int lwResolvePolySurfaces( lwPolygonList *polygon, lwTagList *tlist,
    }
 
    for ( i = 0; i < polygon->count; i++ ) {
-      index = ( int ) polygon->pol[ i ].surf;
+// EPM_BEGIN - #64Bit support (taken from #RBDOOM)
+      index = polygon->pol[ i ].surf.index;
+// EPM_END
       if ( index < 0 || index > tlist->count ) return 0;
       if ( !s[ index ] ) {
          s[ index ] = lwDefaultSurface();
@@ -2738,7 +2745,9 @@ int lwResolvePolySurfaces( lwPolygonList *polygon, lwTagList *tlist,
          lwListAdd( (void**)surf, s[ index ] );
          *nsurfs = *nsurfs + 1;
       }
-      polygon->pol[ i ].surf = s[ index ];
+// EPM_BEGIN - #64Bit support (taken from #RBDOOM)
+      polygon->pol[ i ].surf.ptr = s[ index ];
+// EPM_END
    }
 
    Mem_Free( s );
@@ -2771,7 +2780,9 @@ void lwGetVertNormals( lwPointList *point, lwPolygonList *polygon )
          for ( k = 0; k < 3; k++ )
             polygon->pol[ j ].v[ n ].norm[ k ] = polygon->pol[ j ].norm[ k ];
 
-         if ( polygon->pol[ j ].surf->smooth <= 0 ) continue;
+// EPM_BEGIN - #64Bit support (taken from #RBDOOM)
+         if ( polygon->pol[ j ].surf.ptr->smooth <= 0 ) continue;
+// EPM_END
 
          p = polygon->pol[ j ].v[ n ].index;
 
@@ -2782,7 +2793,9 @@ void lwGetVertNormals( lwPointList *point, lwPolygonList *polygon )
             if ( polygon->pol[ j ].smoothgrp != polygon->pol[ h ].smoothgrp )
                continue;
             a = vecangle( polygon->pol[ j ].norm, polygon->pol[ h ].norm );
-            if ( a > polygon->pol[ j ].surf->smooth ) continue;
+// EPM_BEGIN - #64Bit support (taken from #RBDOOM)
+            if ( a > polygon->pol[ j ].surf.ptr->smooth ) continue;
+// EPM_END
 
             for ( k = 0; k < 3; k++ )
                polygon->pol[ j ].v[ n ].norm[ k ] += polygon->pol[ h ].norm[ k ];
@@ -2907,7 +2920,9 @@ int lwGetPolygonTags( idFile *fp, int cksize, lwTagList *tlist, lwPolygonList *p
 		if ( rlen < 0 || rlen > cksize ) return 0;
 
 		switch ( type ) {
-			case ID_SURF:  plist->pol[ i ].surf = ( lwSurface * ) j;  break;
+// EPM_BEGIN - #64Bit support (taken from #RBDOOM)
+			case ID_SURF:  plist->pol[ i ].surf.index = j;  break;
+// EPM_END
 			case ID_PART:  plist->pol[ i ].part = j;  break;
 			case ID_SMGP:  plist->pol[ i ].smoothgrp = j;  break;
 		}

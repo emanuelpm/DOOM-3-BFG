@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -154,7 +154,7 @@ int Sys_GetVideoRam() {
 		return retSize;
 	}
 
-	// Switch the security level to IMPERSONATE so that provider will grant access to system-level objects.  
+	// Switch the security level to IMPERSONATE so that provider will grant access to system-level objects.
 	hr = CoSetProxyBlanket( spServices, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE );
 	if ( hr != S_OK ) {
 		return retSize;
@@ -162,7 +162,7 @@ int Sys_GetVideoRam() {
 
 	// Get the vid controller
 	CComPtr<IEnumWbemClassObject> spEnumInst = NULL;
-	hr = spServices->CreateInstanceEnum( CComBSTR( "Win32_VideoController" ), WBEM_FLAG_SHALLOW, NULL, &spEnumInst ); 
+	hr = spServices->CreateInstanceEnum( CComBSTR( "Win32_VideoController" ), WBEM_FLAG_SHALLOW, NULL, &spEnumInst );
 	if ( hr != WBEM_S_NO_ERROR || spEnumInst == NULL ) {
 		return retSize;
 	}
@@ -272,7 +272,7 @@ char *Sys_GetCurrentUser() {
 	}
 
 	return s_userName;
-}	
+}
 
 
 /*
@@ -295,7 +295,9 @@ const int UNDECORATE_FLAGS =	UNDNAME_NO_MS_KEYWORDS |
 								UNDNAME_NO_ALLOCATION_LANGUAGE |
 								UNDNAME_NO_MEMBER_TYPE;
 
-#if defined(_DEBUG) && 1
+// EPM_BEGIN - #64Bit support
+#if defined(_DEBUG) && 1 && 0
+// EPM_END
 
 typedef struct symbol_s {
 	int					address;
@@ -530,7 +532,9 @@ void Sym_GetFuncInfo( long addr, idStr &module, idStr &funcName ) {
 	module = "";
 }
 
-#elif defined(_DEBUG)
+// EPM_BEGIN - #64Bit support
+#elif defined(_DEBUG) && 0
+// EPM_END
 
 DWORD lastAllocationBase = -1;
 HANDLE processHandle;
@@ -622,7 +626,7 @@ void Sym_GetFuncInfo( long addr, idStr &module, idStr &funcName ) {
 						MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
 						(LPTSTR) &lpMsgBuf,
 						0,
-						NULL 
+						NULL
 						);
 		LocalFree( lpMsgBuf );
 
@@ -667,6 +671,10 @@ void Sym_GetFuncInfo( long addr, idStr &module, idStr &funcName ) {
 GetFuncAddr
 ==================
 */
+// EPM_BEGIN - #64Bit support
+#if !defined(ID_WIN64)
+// EPM_END
+
 address_t GetFuncAddr( address_t midPtPtr ) {
 	long temp;
 	do {
@@ -680,11 +688,19 @@ address_t GetFuncAddr( address_t midPtPtr ) {
 	return midPtPtr;
 }
 
+// EPM_BEGIN - #64Bit support
+#endif
+// EPM_END
+
 /*
 ==================
 GetCallerAddr
 ==================
 */
+// EPM_BEGIN - #64Bit support
+#if !defined(ID_WIN64)
+// EPM_END
+
 address_t GetCallerAddr( long _ebp ) {
 	long midPtPtr;
 	long res = 0;
@@ -704,6 +720,10 @@ label:
 	return res;
 }
 
+// EPM_BEGIN - #64Bit support
+#endif
+// EPM_END
+
 /*
 ==================
 Sys_GetCallStack
@@ -712,7 +732,9 @@ Sys_GetCallStack
 ==================
 */
 void Sys_GetCallStack( address_t *callStack, const int callStackSize ) {
-#if 1 //def _DEBUG
+// EPM_BEGIN - #64Bit support
+#if !defined(ID_WIN64) //def _DEBUG
+// EPM_END
 	int i;
 	long m_ebp;
 

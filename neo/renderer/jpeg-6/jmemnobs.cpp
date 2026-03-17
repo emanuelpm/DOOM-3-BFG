@@ -59,9 +59,11 @@ jpeg_free_large( j_common_ptr cinfo, void FAR * object, size_t sizeofobject ) {
  * Here we always say, "we got all you want bud!"
  */
 
-GLOBAL long
-jpeg_mem_available( j_common_ptr cinfo, long min_bytes_needed,
-                    long max_bytes_needed, long already_allocated ) {
+// EPM_BEGIN - #64Bit support
+GLOBAL size_t
+jpeg_mem_available( j_common_ptr cinfo, size_t min_bytes_needed,
+                    size_t max_bytes_needed, size_t already_allocated ) {
+// EPM_END
     return max_bytes_needed;
 }
 

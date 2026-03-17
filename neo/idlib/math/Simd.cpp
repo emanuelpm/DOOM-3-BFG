@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -126,35 +126,22 @@ idSIMDProcessor *p_generic;
 long baseClocks = 0;
 
 
-#define TIME_TYPE int
+// EPM_BEGIN - #64Bit support
+#include <intrin.h>
 
-#pragma warning(disable : 4731)     // frame pointer register 'ebx' modified by inline assembly code
-
-long saved_ebx = 0;
+#define TIME_TYPE int64
 
 #define StartRecordTime( start )			\
-	__asm mov saved_ebx, ebx				\
-	__asm xor eax, eax						\
-	__asm cpuid								\
-	__asm rdtsc								\
-	__asm mov start, eax					\
-	__asm xor eax, eax						\
-	__asm cpuid
+	start = __rdtsc()
 
 #define StopRecordTime( end )				\
-	__asm xor eax, eax						\
-	__asm cpuid								\
-	__asm rdtsc								\
-	__asm mov end, eax						\
-	__asm mov ebx, saved_ebx				\
-	__asm xor eax, eax						\
-	__asm cpuid
-
+	end = __rdtsc()
 
 #define GetBest( start, end, best )			\
 	if ( !best || end - start < best ) {	\
 		best = end - start;					\
 	}
+// EPM_END
 
 
 /*
@@ -162,7 +149,9 @@ long saved_ebx = 0;
 PrintClocks
 ============
 */
-void PrintClocks( char *string, int dataCount, int clocks, int otherClocks = 0 ) {
+// EPM_BEGIN - #Modernization pass
+void PrintClocks( const char *string, int dataCount, int clocks, int otherClocks = 0 ) {
+// EPM_END
 	int i;
 
 	idLib::common->Printf( string );

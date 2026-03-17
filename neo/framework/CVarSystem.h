@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -263,6 +263,9 @@ public:
 
 extern idCVarSystem *		cvarSystem;
 
+// EPM_BEGIN - #Modernization pass
+#define CVAR_INVALID		reinterpret_cast<idCVar*>(0xFFFFFFFF'FFFFFFFF)
+// EPM_END
 
 /*
 ===============================================================================
@@ -291,7 +294,9 @@ ID_INLINE void idCVar::Init( const char *name, const char *value, int flags, con
 	this->integerValue = 0;
 	this->floatValue = 0.0f;
 	this->internalVar = this;
-	if ( staticVars != (idCVar *)0xFFFFFFFF ) {
+// EPM_BEGIN - #Modernization pass
+	if ( staticVars != CVAR_INVALID ) {
+// EPM_END
 		this->next = staticVars;
 		staticVars = this;
 	} else {
@@ -300,11 +305,15 @@ ID_INLINE void idCVar::Init( const char *name, const char *value, int flags, con
 }
 
 ID_INLINE void idCVar::RegisterStaticVars() {
-	if ( staticVars != (idCVar *)0xFFFFFFFF ) {
+// EPM_BEGIN - #Modernization pass
+	if ( staticVars != CVAR_INVALID ) {
+// EPM_END
 		for ( idCVar *cvar = staticVars; cvar; cvar = cvar->next ) {
 			cvarSystem->Register( cvar );
 		}
-		staticVars = (idCVar *)0xFFFFFFFF;
+// EPM_BEGIN - #Modernization pass
+		staticVars = CVAR_INVALID;
+// EPM_END
 	}
 }
 

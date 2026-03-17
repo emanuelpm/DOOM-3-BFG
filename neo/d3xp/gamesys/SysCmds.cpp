@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -461,7 +461,9 @@ argv(0) god
 ==================
 */
 void Cmd_God_f( const idCmdArgs &args ) {
-	char		*msg;
+// EPM_BEGIN - #Modernization pass
+	const char	*msg;
+// EPM_END
 	idPlayer	*player;
 
 	player = gameLocal.GetLocalPlayer();
@@ -490,7 +492,9 @@ argv(0) notarget
 ==================
 */
 void Cmd_Notarget_f( const idCmdArgs &args ) {
-	char		*msg;
+// EPM_BEGIN - #Modernization pass
+	const char	*msg;
+// EPM_END
 	idPlayer	*player;
 
 	player = gameLocal.GetLocalPlayer();
@@ -517,7 +521,9 @@ argv(0) noclip
 ==================
 */
 void Cmd_Noclip_f( const idCmdArgs &args ) {
-	char		*msg;
+// EPM_BEGIN - #Modernization pass
+	const char	*msg;
+// EPM_END
 	idPlayer	*player;
 
 	player = gameLocal.GetLocalPlayer();
@@ -602,7 +608,7 @@ static void Cmd_Say( bool team, const idCmdArgs &args ) {
 		idPlayer * player = static_cast<idPlayer *>( gameLocal.entities[ gameLocal.GetLocalClientNum() ] );
         if ( gameLocal.mpGame.IsGametypeFlagBased() && team && player ) {
             idLocationEntity *locationEntity = gameLocal.LocationForPoint( player->GetEyePosition() );
-            
+
             if ( locationEntity ) {
                 idStr temp = "[";
                 temp += locationEntity->GetLocation();
@@ -610,7 +616,7 @@ static void Cmd_Say( bool team, const idCmdArgs &args ) {
                 temp += text;
                 text = temp;
             }
-            
+
         }
 	}
 
@@ -2009,7 +2015,7 @@ static void Cmd_CloseViewNotes_f( const idCmdArgs &args ) {
 	if ( !player ) {
 		return;
 	}
-	
+
 	// TODO_SPARTY: removed old hud need to find a way of doing this with the new hud
 	//player->hud->SetStateString( "viewcomments", "" );
 	//player->hud->HandleNamedEvent( "hideViewComments" );
@@ -2050,7 +2056,7 @@ static void Cmd_ShowViewNotes_f( const idCmdArgs &args ) {
 		}
 	}
 
-	if ( parser.ExpectTokenString( "view" ) && parser.Parse1DMatrix( 3, origin.ToFloatPtr() ) && 
+	if ( parser.ExpectTokenString( "view" ) && parser.Parse1DMatrix( 3, origin.ToFloatPtr() ) &&
 		parser.Parse1DMatrix( 9, axis.ToFloatPtr() ) && parser.ExpectTokenString( "comments" ) && parser.ReadToken( &token ) ) {
 
 		// TODO_SPARTY: removed old hud need to find a way of doing this with the new hud
@@ -2167,7 +2173,7 @@ void Cmd_NextGUI_f( const idCmdArgs &args ) {
 			if ( ent->spawnArgs.GetString( "gui", NULL ) != NULL ) {
 				break;
 			}
-			
+
 			if ( ent->spawnArgs.GetString( "gui2", NULL ) != NULL ) {
 				break;
 			}
@@ -2175,7 +2181,7 @@ void Cmd_NextGUI_f( const idCmdArgs &args ) {
 			if ( ent->spawnArgs.GetString( "gui3", NULL ) != NULL ) {
 				break;
 			}
-			
+
 			// try the next entity
 			gameLocal.lastGUIEnt = ent;
 		}
@@ -2241,7 +2247,7 @@ void Cmd_SetActorState_f( const idCmdArgs &args ) {
 		return;
 	}
 
-	
+
 	if(!ent->IsType(idActor::Type)) {
 		gameLocal.Printf( "entity not an actor\n" );
 		return;
@@ -2278,7 +2284,7 @@ void Cmd_TestId_f( const idCmdArgs &args ) {
 	if ( idStr::Cmpn( id, STRTABLE_ID, STRTABLE_ID_LENGTH ) != 0 ) {
 		id = STRTABLE_ID + id;
 	}
-	gameLocal.mpGame.AddChatLine( idLocalization::GetString( id ), "<nothing>", "<nothing>", "<nothing>" );	
+	gameLocal.mpGame.AddChatLine( idLocalization::GetString( id ), "<nothing>", "<nothing>", "<nothing>" );
 }
 
 

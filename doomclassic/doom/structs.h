@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma once
 
-//  am_map.structs begin // 
+//  am_map.structs begin //
 typedef struct
 {
 	int x, y;
@@ -49,15 +49,17 @@ typedef struct
 {
 	fixed_t slp, islp;
 } islope_t;
-// am_map.structs end // 
-//  f_finale.structs begin // 
+// am_map.structs end //
+//  f_finale.structs begin //
 typedef struct
 {
-    char		*name;
+// EPM_BEGIN - #Modernization pass
+    const char		*name;
+// EPM_END
     mobjtype_t	type;
 } castinfo_t;
-// f_finale.structs end // 
-//  i_input.structs begin // 
+// f_finale.structs end //
+//  i_input.structs begin //
 
 enum  {
 	J_DELTAX,
@@ -69,7 +71,7 @@ enum InputEventType
 	IETButtonDigital,
 	IETButtonAnalog,
 	IETNone,
-} ;	
+} ;
 struct InputEvent
 {
 	InputEventType type;
@@ -77,9 +79,9 @@ struct InputEvent
 	int action;
 	int port;
 } ;
-// i_input.structs end // 
+// i_input.structs end //
 
-//  mus2midi.structs begin // 
+//  mus2midi.structs begin //
 typedef struct tagMUSheader_t {
 	char    ID[4];          // identifier "MUS" 0x1A
 	WORD    scoreLen;
@@ -102,8 +104,8 @@ typedef struct tagMidiTrackChunk_t {
 	char name[4];
 	int	length;
 } MidiTrackChunk_t;
-// mus2midi.structs end // 
-//  m_menu.structs begin // 
+// mus2midi.structs end //
+//  m_menu.structs begin //
 typedef struct
 {
 	// 0 = no cursor here, 1 = ok, 2 = arrows ok
@@ -117,7 +119,7 @@ typedef struct
 	void	(*routine)(int choice);
 
 	// hotkey in menu
-	char	alphaKey;			
+	char	alphaKey;
 } menuitem_t;
 typedef struct menu_s
 {
@@ -134,7 +136,7 @@ typedef enum
     newgame = 0,
     options,
     loadgame,
-    savegame,    
+    savegame,
     quitdoom,
     main_end
 } main_e;
@@ -173,7 +175,7 @@ typedef enum
 	endgame,
 	scrnsize,
 	messages,
-	//detail,	
+	//detail,
 	option_empty1,
 	mousesens,
 	option_empty2,
@@ -208,11 +210,13 @@ typedef enum
 	load6,
 	load_end
 } load_e;
-// m_menu.structs end // 
-//  m_misc.structs begin // 
+// m_menu.structs end //
+//  m_misc.structs begin //
 struct default_t
 {
-    char*	name;
+// EPM_BEGIN - #Modernization pass
+    const char*	name;
+// EPM_END
 	union {
 		int *			location;
 		const char * *	charLocation;
@@ -232,13 +236,17 @@ struct default_t
 		untranslated( 0 ) {
 	}
 
-	default_t( char * name_, int * location_, int defaultvalue_ ) :
+// EPM_BEGIN - #Modernization pass
+	default_t( const char * name_, int * location_, int defaultvalue_ ) :
+// EPM_END
 		name( name_ ),
 		location( location_ ),
 		defaultvalue( defaultvalue_ ) {
 	}
 
-	default_t( char * name_, const char * * charLocation_, const char * charDefault_ ) :
+// EPM_BEGIN - #Modernization pass
+	default_t( const char * name_, const char * * charLocation_, const char * charDefault_ ) :
+// EPM_END
 		name( name_ ),
 		charLocation( charLocation_ ),
 		charDefault( charDefault_ ) {
@@ -255,22 +263,22 @@ typedef struct
     unsigned short	ymin;
     unsigned short	xmax;
     unsigned short	ymax;
-    
+
     unsigned short	hres;
     unsigned short	vres;
 
     unsigned char	palette[48];
-    
+
     char		reserved;
     char		color_planes;
     unsigned short	bytes_per_line;
     unsigned short	palette_type;
-    
+
     char		filler[58];
     unsigned char	data;		// unbounded
 } pcx_t;
-// m_misc.structs end // 
-//  p_enemy.structs begin // 
+// m_misc.structs end //
+//  p_enemy.structs begin //
 typedef enum
 {
     DI_EAST,
@@ -283,10 +291,10 @@ typedef enum
     DI_SOUTHEAST,
     DI_NODIR,
     NUMDIRS
-    
+
 } dirtype_t;
-// p_enemy.structs end // 
-//  p_saveg.structs begin // 
+// p_enemy.structs end //
+//  p_saveg.structs begin //
 typedef enum
 {
     tc_end = 0,
@@ -305,9 +313,9 @@ typedef enum
     tc_endspecials,
 	tc_fire
 
-} specials_e;	
-// p_saveg.structs end // 
-//  p_spec.structs begin // 
+} specials_e;
+// p_saveg.structs end //
+//  p_spec.structs begin //
 typedef struct
 {
 	qboolean	istexture;
@@ -324,16 +332,16 @@ typedef struct
 	char	startname[9];
 	int		speed;
 } animdef_t;
-// p_spec.structs end // 
-//  r_bsp.structs begin // 
+// p_spec.structs end //
+//  r_bsp.structs begin //
 typedef	struct
 {
     int	first;
     int last;
-    
+
 } cliprange_t;
-// r_bsp.structs end // 
-//  r_data.structs begin // 
+// r_bsp.structs end //
+//  r_data.structs begin //
 typedef struct
 {
     short	originx;
@@ -345,10 +353,12 @@ typedef struct
 typedef struct
 {
     char		name[8];
-    int			masked;	
+    int			masked;
     short		width;
     short		height;
-    void		**columndirectory;	// OBSOLETE
+// EPM_BEGIN - #64Bit support
+	int			__pad;	// OBSOLETE
+// EPM_END
     short		patchcount;
     mappatch_t	patches[1];
 } maptexture_t;
@@ -357,37 +367,37 @@ typedef struct
     // Block origin (allways UL),
     // which has allready accounted
     // for the internal origin of the patch.
-    int		originx;	
+    int		originx;
     int		originy;
     int		patch;
 } texpatch_t;
 typedef struct
 {
     // Keep name for switch changing, etc.
-    char	name[8];		
+    char	name[8];
     short	width;
     short	height;
-    
+
     // All the patches[patchcount]
     //  are drawn back to front into the cached texture.
     short	patchcount;
-    texpatch_t	patches[1];		
-    
+    texpatch_t	patches[1];
+
 } texture_t;
-// r_data.structs end // 
-//  r_things.structs begin // 
+// r_data.structs end //
+//  r_things.structs begin //
 typedef struct
 {
     int		x1;
     int		x2;
-	
+
     int		column;
     int		topclip;
     int		bottomclip;
 
 } maskdraw_t;
-// r_things.structs end // 
-//  st_stuff.structs begin // 
+// r_things.structs end //
+//  st_stuff.structs begin //
 typedef enum
 {
     NoState = -1,
@@ -395,8 +405,8 @@ typedef enum
     ShowNextLoc
 
 } stateenum_t;
-// st_stuff.structs end // 
-//  s_sound.structs begin // 
+// st_stuff.structs end //
+//  s_sound.structs begin //
 typedef struct
 {
 	// sound information (if null, channel avail.)
@@ -409,8 +419,8 @@ typedef struct
 	int		handle;
 
 } channel_t;
-// s_sound.structs end // 
-//  wi_stuff.structs begin // 
+// s_sound.structs end //
+//  wi_stuff.structs begin //
 typedef enum
 {
     ANIM_ALWAYS,
@@ -422,7 +432,7 @@ typedef struct
 {
     int		x;
     int		y;
-    
+
 } point_t;
 typedef struct
 {
@@ -445,10 +455,10 @@ typedef struct
     // ALWAYS: n/a,
     // RANDOM: random base period,
     // LEVEL: n/a
-    int		data2; 
+    int		data2;
 
     // actual graphics for frames of animations
-    patch_t*	p[3]; 
+    patch_t*	p[3];
 
     // following must be initialized to zero before use!
 
@@ -460,13 +470,13 @@ typedef struct
 
     // next frame number to animate
     int		ctr;
-    
+
     // used by RANDOM and LEVEL when animating
-    int		state;  
+    int		state;
 
 } anim_t;
-// wi_stuff.structs end // 
-//  z_zone.structs begin // 
+// wi_stuff.structs end //
+//  z_zone.structs begin //
 struct lumplookup
 {
 	int lump;
@@ -480,8 +490,8 @@ typedef struct
 
     // start / end cap for linked list
     memblock_t	blocklist;
-    
+
     memblock_t*	rover;
-    
+
 } memzone_t;
-// z_zone.structs end // 
+// z_zone.structs end //

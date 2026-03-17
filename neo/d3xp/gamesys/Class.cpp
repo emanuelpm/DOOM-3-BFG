@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ initialized in any order, the constructor must handle the case that subclasses
 are initialized before superclasses.
 ================
 */
-idTypeInfo::idTypeInfo( const char *classname, const char *superclass, idEventFunc<idClass> *eventCallbacks, idClass *( *CreateInstance )(), 
+idTypeInfo::idTypeInfo( const char *classname, const char *superclass, idEventFunc<idClass> *eventCallbacks, idClass *( *CreateInstance )(),
 	void ( idClass::*Spawn )(), void ( idClass::*Save )( idSaveGame *savefile ) const, void ( idClass::*Restore )( idRestoreGame *savefile ) ) {
 
 	idTypeInfo *type;
@@ -82,7 +82,7 @@ idTypeInfo::idTypeInfo( const char *classname, const char *superclass, idEventFu
 
 	// Check if any subclasses were initialized before their superclass
 	for( type = typelist; type != NULL; type = type->next ) {
-		if ( ( type->super == NULL ) && !idStr::Cmp( type->superclass, this->classname ) && 
+		if ( ( type->super == NULL ) && !idStr::Cmp( type->superclass, this->classname ) &&
 			idStr::Cmp( type->classname, "idClass" ) ) {
 			type->super	= this;
 		}
@@ -116,7 +116,7 @@ idTypeInfo::~idTypeInfo() {
 ================
 idTypeInfo::Init
 
-Initializes the event callback table for the class.  Creates a 
+Initializes the event callback table for the class.  Creates a
 table for fast lookups of event functions.  Should only be called once.
 ================
 */
@@ -202,7 +202,7 @@ void idTypeInfo::Init() {
 idTypeInfo::Shutdown
 
 Should only be called when DLL or EXE is being shutdown.
-Although it cleans up any allocated memory, it doesn't bother to remove itself 
+Although it cleans up any allocated memory, it doesn't bother to remove itself
 from the class list since the program is shutting down.
 ================
 */
@@ -577,9 +577,9 @@ bool idClass::PostEventArgs( const idEventDef *ev, int time, int numargs, ... ) 
 	idTypeInfo	*c;
 	idEvent		*event;
 	va_list		args;
-	
+
 	assert( ev );
-	
+
 	if ( !idEvent::initialized ) {
 		return false;
 	}
@@ -785,9 +785,11 @@ idClass::ProcessEventArgs
 bool idClass::ProcessEventArgs( const idEventDef *ev, int numargs, ... ) {
 	idTypeInfo	*c;
 	int			num;
-	int			data[ D_EVENT_MAXARGS ];
+// EPM_BEGIN - #64Bit support
+	intptr_t	data[ D_EVENT_MAXARGS ];
+// EPM_END
 	va_list		args;
-	
+
 	assert( ev );
 	assert( idEvent::initialized );
 
@@ -893,7 +895,9 @@ bool idClass::ProcessEvent( const idEventDef *ev, idEventArg arg1, idEventArg ar
 idClass::ProcessEventArgPtr
 ================
 */
-bool idClass::ProcessEventArgPtr( const idEventDef *ev, int *data ) {
+// EPM_BEGIN - #64Bit support
+bool idClass::ProcessEventArgPtr( const idEventDef *ev, intptr_t *data ) {
+// EPM_END
 	idTypeInfo	*c;
 	int			num;
 	eventCallback_t	callback;

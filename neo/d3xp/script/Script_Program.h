@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -123,7 +123,7 @@ public:
 	int					Size() const;
 
 	idTypeDef			*SuperClass() const;
-	
+
 	idTypeDef			*ReturnType() const;
 	void				SetReturnType( idTypeDef *type );
 
@@ -155,7 +155,7 @@ In-game representation of objects in scripts.  Use the idScriptVariable template
 class idScriptObject {
 private:
 	idTypeDef					*type;
-	
+
 public:
 	byte						*data;
 
@@ -459,6 +459,10 @@ private:
 	int											top_files;
 
 	void										CompileStats();
+// EPM_BEGIN - #64Bit support (taken from #RBDOOM)
+	byte*										ReserveDefMemory( int size );
+	idVarDef*									AllocVarDef( idTypeDef* type, const char* name, idVarDef* scope );
+// EPM_END
 
 public:
 	idVarDef									*returnDef;
@@ -520,7 +524,7 @@ public:
 	void										ReturnVector( idVec3 const &vec );
 	void										ReturnString( const char *string );
 	void										ReturnEntity( idEntity *ent );
-	
+
 	int											NumFilenames() { return fileList.Num( ); }
 };
 

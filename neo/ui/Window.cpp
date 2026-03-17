@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -218,7 +218,7 @@ idWindow::idWindow(idUserInterfaceLocal *ui) {
 	gui = ui;
 	CommonInit();
 }
-				  
+
 /*
 ================
 idWindow::CleanUp
@@ -232,7 +232,7 @@ void idWindow::CleanUp() {
 
 	// ensure the register list gets cleaned up
 	regList.Reset ( );
-	
+
 	// Cleanup the named events
 	namedEvents.DeleteContents(true);
 
@@ -336,7 +336,7 @@ idWindow::BringToTop
 ================
 */
 void idWindow::BringToTop(idWindow *w) {
-	
+
 	if (w && !(w->flags & WIN_MODAL)) {
 		return;
 	}
@@ -375,7 +375,7 @@ idWindow::MouseEnter
 ================
 */
 void idWindow::MouseEnter() {
-	
+
 	if (noEvents) {
 		return;
 	}
@@ -389,7 +389,7 @@ idWindow::MouseExit
 ================
 */
 void idWindow::MouseExit() {
-	
+
 	if (noEvents) {
 		return;
 	}
@@ -435,7 +435,7 @@ const char *idWindow::RouteMouseCoords(float xd, float yd) {
 		//FIXME: unkludge this whole mechanism
 		return GetCaptureChild()->RouteMouseCoords(xd, yd);
 	}
-	
+
 	if (xd == -2000 || yd == -2000) {
 		return "";
 	}
@@ -618,10 +618,10 @@ void idWindow::RunNamedEvent ( const char* eventName )
 	int i;
 	int c;
 
-	// Find and run the event	
+	// Find and run the event
 	c = namedEvents.Num( );
 	for ( i = 0; i < c; i ++ ) {
-		if ( namedEvents[i]->mName.Icmp( eventName ) ) {	
+		if ( namedEvents[i]->mName.Icmp( eventName ) ) {
 			continue;
 		}
 
@@ -631,12 +631,12 @@ void idWindow::RunNamedEvent ( const char* eventName )
 		if (expressionRegisters.Num() && ops.Num()) {
 			EvalRegs(-1, true);
 		}
-		
+
 		RunScriptList( namedEvents[i]->mEvent );
-		
+
 		break;
 	}
-	
+
 	// Run the event in all the children as well
 	c = children.Num();
 	for ( i = 0; i < c; i++ ) {
@@ -725,7 +725,7 @@ const char *idWindow::HandleEvent(const sysEvent_t *event, bool *updateVisuals) 
 					GetCaptureChild()->LoseCapture();
 					gui->GetDesktop()->captureChild = NULL;
 					return "";
-				} 
+				}
 
 				int c = children.Num();
 				while (--c >= 0) {
@@ -746,7 +746,7 @@ const char *idWindow::HandleEvent(const sysEvent_t *event, bool *updateVisuals) 
 							const char *childRet = child->HandleEvent(event, updateVisuals);
 							if (childRet != NULL && *childRet != NULL) {
 								return childRet;
-							} 
+							}
 							if (child->flags & WIN_MODAL) {
 								return "";
 							}
@@ -791,7 +791,7 @@ const char *idWindow::HandleEvent(const sysEvent_t *event, bool *updateVisuals) 
 							const char *childRet = child->HandleEvent(event, updateVisuals);
 							if (childRet && *childRet) {
 								return childRet;
-							} 
+							}
 							if (child->flags & WIN_MODAL) {
 								return "";
 							}
@@ -954,7 +954,7 @@ void idWindow::DebugDraw(int time, float x, float y) {
 			char out[1024];
 			idStr str;
 			str = text.c_str();
-			
+
 			if (str.Length()) {
 				sprintf(buff, "%s\n", str.c_str());
 			}
@@ -973,7 +973,7 @@ void idWindow::DebugDraw(int time, float x, float y) {
 			//tempRect.x += offsetX;
 			//drawRect.y += offsetY;
 			dc->DrawText(buff, textScale, textAlign, foreColor, textRect, true);
-		} 
+		}
 		dc->EnableClipping(true);
 	}
 }
@@ -1034,7 +1034,7 @@ idWindow::Time
 ================
 */
 void idWindow::Time() {
-	
+
 	if ( noTime ) {
 		return;
 	}
@@ -1133,7 +1133,7 @@ idWindow::SetupTransforms
 void idWindow::SetupTransforms(float x, float y) {
 	static idMat3 trans;
 	static idVec3 org;
-	
+
 	trans.Identity();
 	org.Set( origin.x + x, origin.y + y, 0 );
 
@@ -1189,7 +1189,7 @@ void idWindow::Redraw(float x, float y, bool hud) {
 	if (r_skipGuiShaders.GetInteger() == 1 || dc == NULL ) {
 		return;
 	}
-	
+
 	int time = gui->GetTime();
 
 	if ( flags & WIN_DESKTOP && r_skipGuiShaders.GetInteger() != 3 ) {
@@ -1238,7 +1238,7 @@ void idWindow::Redraw(float x, float y, bool hud) {
 
 	idVec3	oldOrg;
 	idMat3	oldTrans;
-		
+
 	dc->GetTransformInfo( oldOrg, oldTrans );
 
 	SetupTransforms(x, y);
@@ -1247,7 +1247,7 @@ void idWindow::Redraw(float x, float y, bool hud) {
 
 	if ( !( flags & WIN_NOCLIP) ) {
 		dc->PushClipRect(clientRect);
-	} 
+	}
 
 	if ( r_skipGuiShaders.GetInteger() < 5 ) {
 		Draw(time, x, y);
@@ -1271,7 +1271,7 @@ void idWindow::Redraw(float x, float y, bool hud) {
 
 	if ( ! ( flags & WIN_NOCLIP ) ) {
 		dc->PopClipRect();
-	} 
+	}
 
 	if (gui_edit.GetBool()  || (flags & WIN_DESKTOP && !( flags & WIN_NOCURSOR )  && !hideCursor && (gui->Active() || ( flags & WIN_MENUGUI ) ))) {
 		dc->SetTransformInfo(vec3_origin, mat3_identity);
@@ -1329,7 +1329,7 @@ void idWindow::CalcClientRect(float xofs, float yofs) {
 		drawRect.x = rect.x() - rect.w();
 		drawRect.y = rect.y() - rect.h();
 	}
-	
+
 	if (flags & (WIN_HCENTER | WIN_VCENTER) && parent) {
 		// in this case treat xofs and yofs as absolute top left coords
 		// and ignore the original positioning
@@ -1400,7 +1400,7 @@ void idWindow::SetupFromState() {
 	if (regList.FindReg("rotate") || regList.FindReg("shear")) {
 		flags |= WIN_TRANSFORM;
 	}
-	
+
 	CalcClientRect(0,0);
 	if ( scripts[ ON_ACTION ] ) {
 		cursor = idDeviceContext::CURSOR_HAND;
@@ -1558,14 +1558,14 @@ bool idWindow::ParseScript(idTokenParser *src, idGuiScriptList &list, int *timeP
 	// scripts start with { ( unless parm is true ) and have ; separated command lists.. commands are command,
 	// arg.. basically we want everything between the { } as it will be interpreted at
 	// run time
-	
+
 	if ( elseBlock ) {
 		src->ReadToken ( &token );
-	
+
 		if ( !token.Icmp ( "if" ) ) {
 			ifElseBlock = true;
 		}
-		
+
 		src->UnreadToken ( &token );
 
 		if ( !ifElseBlock && !src->ExpectTokenString( "{" ) ) {
@@ -1611,7 +1611,7 @@ bool idWindow::ParseScript(idTokenParser *src, idGuiScriptList &list, int *timeP
 
 			list.Append(gs);
 
-			// if we are parsing an else if then return out so 
+			// if we are parsing an else if then return out so
 			// the initial "if" parser can handle the rest of the tokens
 			if ( ifElseBlock ) {
 				return true;
@@ -1704,7 +1704,7 @@ void idWindow::PostParse() {
 	idSort_TimeLine sorter;
 	timeLineEvents.SortWithTemplate( sorter );
 }
-	
+
 /*
 ================
 idWindow::GetWinVarOffset
@@ -1714,35 +1714,51 @@ int idWindow::GetWinVarOffset( idWinVar *wv, drawWin_t* owner) {
 	int ret = -1;
 
 	if ( wv == &rect ) {
-		ret = (int)&( ( idWindow * ) 0 )->rect;
+// EPM_BEGIN - #64Bit support
+		ret = (intptr_t)&( ( idWindow * ) 0 )->rect;
+// EPM_END
 	}
 
 	if ( wv == &backColor ) {
-		ret = (int)&( ( idWindow * ) 0 )->backColor;
+// EPM_BEGIN - #64Bit support
+		ret = (intptr_t)&( ( idWindow * ) 0 )->backColor;
+// EPM_END
 	}
 
 	if ( wv == &matColor ) {
-		ret = (int)&( ( idWindow * ) 0 )->matColor;
+// EPM_BEGIN - #64Bit support
+		ret = (intptr_t)&( ( idWindow * ) 0 )->matColor;
+// EPM_END
 	}
 
 	if ( wv == &foreColor ) {
-		ret = (int)&( ( idWindow * ) 0 )->foreColor;
+// EPM_BEGIN - #64Bit support
+		ret = (intptr_t)&( ( idWindow * ) 0 )->foreColor;
+// EPM_END
 	}
 
 	if ( wv == &hoverColor ) {
-		ret = (int)&( ( idWindow * ) 0 )->hoverColor;
+// EPM_BEGIN - #64Bit support
+		ret = (intptr_t)&( ( idWindow * ) 0 )->hoverColor;
+// EPM_END
 	}
 
 	if ( wv == &borderColor ) {
-		ret = (int)&( ( idWindow * ) 0 )->borderColor;
+// EPM_BEGIN - #64Bit support
+		ret = (intptr_t)&( ( idWindow * ) 0 )->borderColor;
+// EPM_END
 	}
 
 	if ( wv == &textScale ) {
-		ret = (int)&( ( idWindow * ) 0 )->textScale;
+// EPM_BEGIN - #64Bit support
+		ret = (intptr_t)&( ( idWindow * ) 0 )->textScale;
+// EPM_END
 	}
 
 	if ( wv == &rotate ) {
-		ret = (int)&( ( idWindow * ) 0 )->rotate;
+// EPM_BEGIN - #64Bit support
+		ret = (intptr_t)&( ( idWindow * ) 0 )->rotate;
+// EPM_END
 	}
 
 	if ( ret != -1 ) {
@@ -1865,7 +1881,7 @@ idWinVar *idWindow::GetWinVarByName(const char *_name, bool fixup, drawWin_t** o
 					}
 					return win->simp->GetWinVarByName(var);
 				}
-			} 
+			}
 		}
 	}
 	return NULL;
@@ -2062,7 +2078,7 @@ bool idWindow::ParseRegEntry(const char *name, idTokenParser *src) {
 
 	// not predefined so just read the next token and add it to the state
 	idToken tok;
-	idVec4 v;	
+	idVec4 v;
 	idWinInt *vari;
 	idWinFloat *varf;
 	idWinStr *vars;
@@ -2072,7 +2088,7 @@ bool idWindow::ParseRegEntry(const char *name, idTokenParser *src) {
 			return true;
 		}
 		switch (tok.type) {
-			case TT_NUMBER : 
+			case TT_NUMBER :
 				if (tok.subtype & TT_INTEGER) {
 					vari = new (TAG_OLD_UI) idWinInt();
 					*vari = atoi(tok);
@@ -2184,11 +2200,11 @@ bool idWindow::Parse( idTokenParser *src, bool rebuild) {
 					drawWindows.Append(dwt);
 				}
 			}
-		} 
+		}
 		else if ( token == "editDef" ) {
 			idEditWindow *win = new (TAG_OLD_UI) idEditWindow(gui);
 		  	SaveExpressionParseState();
-			win->Parse(src, rebuild);	
+			win->Parse(src, rebuild);
 		  	RestoreExpressionParseState();
 			AddChild(win);
 			win->SetParent(this);
@@ -2199,7 +2215,7 @@ bool idWindow::Parse( idTokenParser *src, bool rebuild) {
 		else if ( token == "choiceDef" ) {
 			idChoiceWindow *win = new (TAG_OLD_UI) idChoiceWindow(gui);
 		  	SaveExpressionParseState();
-			win->Parse(src, rebuild);	
+			win->Parse(src, rebuild);
 		  	RestoreExpressionParseState();
 			AddChild(win);
 			win->SetParent(this);
@@ -2210,7 +2226,7 @@ bool idWindow::Parse( idTokenParser *src, bool rebuild) {
 		else if ( token == "sliderDef" ) {
 			idSliderWindow *win = new (TAG_OLD_UI) idSliderWindow(gui);
 		  	SaveExpressionParseState();
-			win->Parse(src, rebuild);	
+			win->Parse(src, rebuild);
 		  	RestoreExpressionParseState();
 			AddChild(win);
 			win->SetParent(this);
@@ -2221,7 +2237,7 @@ bool idWindow::Parse( idTokenParser *src, bool rebuild) {
 		else if ( token == "bindDef" ) {
 			idBindWindow *win = new (TAG_OLD_UI) idBindWindow(gui);
 		  	SaveExpressionParseState();
-			win->Parse(src, rebuild);	
+			win->Parse(src, rebuild);
 		  	RestoreExpressionParseState();
 			AddChild(win);
 			win->SetParent(this);
@@ -2232,7 +2248,7 @@ bool idWindow::Parse( idTokenParser *src, bool rebuild) {
 		else if ( token == "listDef" ) {
 			idListWindow *win = new (TAG_OLD_UI) idListWindow(gui);
 		  	SaveExpressionParseState();
-			win->Parse(src, rebuild);	
+			win->Parse(src, rebuild);
 		  	RestoreExpressionParseState();
 			AddChild(win);
 			win->SetParent(this);
@@ -2243,7 +2259,7 @@ bool idWindow::Parse( idTokenParser *src, bool rebuild) {
 		else if ( token == "fieldDef" ) {
 			idFieldWindow *win = new (TAG_OLD_UI) idFieldWindow(gui);
 		  	SaveExpressionParseState();
-			win->Parse(src, rebuild);	
+			win->Parse(src, rebuild);
 		  	RestoreExpressionParseState();
 			AddChild(win);
 			win->SetParent(this);
@@ -2257,7 +2273,7 @@ bool idWindow::Parse( idTokenParser *src, bool rebuild) {
 			// we don't need to deal with offset viewports on all platforms.
 			idRenderWindow *win = new (TAG_OLD_UI) idRenderWindow(gui);
 		  	SaveExpressionParseState();
-			win->Parse(src, rebuild);	
+			win->Parse(src, rebuild);
 		  	RestoreExpressionParseState();
 			AddChild(win);
 			win->SetParent(this);
@@ -2268,7 +2284,7 @@ bool idWindow::Parse( idTokenParser *src, bool rebuild) {
 		else if ( token == "gameSSDDef" ) {
 			idGameSSDWindow *win = new (TAG_OLD_UI) idGameSSDWindow(gui);
 			SaveExpressionParseState();
-			win->Parse(src, rebuild);	
+			win->Parse(src, rebuild);
 			RestoreExpressionParseState();
 			AddChild(win);
 			win->SetParent(this);
@@ -2279,7 +2295,7 @@ bool idWindow::Parse( idTokenParser *src, bool rebuild) {
 		else if ( token == "gameBearShootDef" ) {
 			idGameBearShootWindow *win = new (TAG_OLD_UI) idGameBearShootWindow(gui);
 			SaveExpressionParseState();
-			win->Parse(src, rebuild);	
+			win->Parse(src, rebuild);
 			RestoreExpressionParseState();
 			AddChild(win);
 			win->SetParent(this);
@@ -2290,7 +2306,7 @@ bool idWindow::Parse( idTokenParser *src, bool rebuild) {
 		else if ( token == "gameBustOutDef" ) {
 			idGameBustOutWindow *win = new (TAG_OLD_UI) idGameBustOutWindow(gui);
 			SaveExpressionParseState();
-			win->Parse(src, rebuild);	
+			win->Parse(src, rebuild);
 			RestoreExpressionParseState();
 			AddChild(win);
 			win->SetParent(this);
@@ -2298,7 +2314,7 @@ bool idWindow::Parse( idTokenParser *src, bool rebuild) {
 			dwt.win = win;
 			drawWindows.Append(dwt);
 		}
-// 
+//
 //  added new onEvent
 		else if ( token == "onNamedEvent" ) {
 			// Read the event name
@@ -2308,9 +2324,9 @@ bool idWindow::Parse( idTokenParser *src, bool rebuild) {
 			}
 
 			rvNamedEvent* ev = new (TAG_OLD_UI) rvNamedEvent ( token );
-			
+
 			src->SetMarker ( );
-			
+
 			if ( !ParseScript ( src, *ev->mEvent ) ) {
 				ret = false;
 				break;
@@ -2326,7 +2342,7 @@ bool idWindow::Parse( idTokenParser *src, bool rebuild) {
 				return false;
 			}
 			ev->time = atoi(token.c_str());
-			
+
 			// reset the mark since we dont want it to include the time
 			src->SetMarker ( );
 
@@ -2351,7 +2367,7 @@ bool idWindow::Parse( idTokenParser *src, bool rebuild) {
 			// Set the marker after the float name
 			src->SetMarker ( );
 
-			// Read in the float 
+			// Read in the float
 			regList.AddReg(work, idRegister::FLOAT, src, this, varf);
 		}
 		else if ( token == "definevec4" ) {
@@ -2393,7 +2409,7 @@ bool idWindow::Parse( idTokenParser *src, bool rebuild) {
 		}
 		else {
 			ParseRegEntry(token, src);
-		} 
+		}
 		if ( !src->ReadToken( &token ) ) {
 			src->Error( "Unexpected end of file" );
 			ret = false;
@@ -2424,7 +2440,7 @@ idSimpleWindow *idWindow::FindSimpleWinByName(const char *_name) {
 		}
 		if ( idStr::Icmp(drawWindows[i].simp->name, _name) == 0 ) {
 			return drawWindows[i].simp;
-		} 
+		}
 	}
 	return NULL;
 }
@@ -2627,7 +2643,9 @@ idWindow::EmitOp
 ================
 */
 
-int idWindow::EmitOp( int a, int b, wexpOpType_t opType, wexpOp_t **opp ) {
+// EPM_BEGIN - #64Bit support
+intptr_t idWindow::EmitOp( intptr_t a, intptr_t b, wexpOpType_t opType, wexpOp_t **opp ) {
+// EPM_END
 	wexpOp_t *op;
 /*
 	// optimize away identity operations
@@ -2678,9 +2696,11 @@ int idWindow::EmitOp( int a, int b, wexpOpType_t opType, wexpOp_t **opp ) {
 idWindow::ParseEmitOp
 ================
 */
-int idWindow::ParseEmitOp( idTokenParser *src, int a, wexpOpType_t opType, int priority, wexpOp_t **opp ) {
-	int b = ParseExpressionPriority( src, priority );
-	return EmitOp( a, b, opType, opp );  
+// EPM_BEGIN - #64Bit support
+intptr_t idWindow::ParseEmitOp( idTokenParser *src, intptr_t a, wexpOpType_t opType, int priority, wexpOp_t **opp ) {
+	intptr_t b = ParseExpressionPriority( src, priority );
+// EPM_END
+	return EmitOp( a, b, opType, opp );
 }
 
 
@@ -2691,9 +2711,11 @@ idWindow::ParseTerm
 Returns a register index
 =================
 */
-int idWindow::ParseTerm( idTokenParser *src,	idWinVar *var, int component ) {
+// EPM_BEGIN - #64Bit support
+intptr_t idWindow::ParseTerm( idTokenParser *src,	idWinVar *var, intptr_t component ) {
 	idToken token;
-	int		a, b;
+	intptr_t	a, b;
+// EPM_END
 
 	src->ReadToken( &token );
 
@@ -2731,12 +2753,14 @@ int idWindow::ParseTerm( idTokenParser *src,	idWinVar *var, int component ) {
 		src->ExpectTokenString("]");
 		return EmitOp( a, b, WOP_TYPE_TABLE );
 	}
-	
+
 	if (var == NULL) {
 		var = GetWinVarByName(token, true);
 	}
 	if (var) {
-		a = (int)var;
+// EPM_BEGIN - #64Bit support
+		a = reinterpret_cast<intptr_t>(var);
+// EPM_END
 		//assert(dynamic_cast<idWinVec4*>(var));
 		var->Init(token, this);
 		b = component;
@@ -2766,7 +2790,9 @@ int idWindow::ParseTerm( idTokenParser *src,	idWinVar *var, int component ) {
 		// ugly but used for post parsing to fixup named vars
 		char *p = new (TAG_OLD_UI) char[token.Length()+1];
 		strcpy(p, token);
-		a = (int)p;
+// EPM_BEGIN - #64Bit support
+		a = reinterpret_cast<intptr_t>(p);
+// EPM_END
 		b = -2;
 		return EmitOp(a, b, WOP_TYPE_VAR);
 	}
@@ -2781,9 +2807,11 @@ Returns a register index
 =================
 */
 #define	TOP_PRIORITY 4
-int idWindow::ParseExpressionPriority( idTokenParser *src, int priority, idWinVar *var, int component ) {
+// EPM_BEGIN - #64Bit support
+intptr_t idWindow::ParseExpressionPriority( idTokenParser *src, int priority, idWinVar *var, intptr_t component ) {
 	idToken token;
-	int		a;
+	intptr_t a;
+// EPM_END
 
 	if ( priority == 0 ) {
 		return ParseTerm( src, var, component );
@@ -2864,7 +2892,9 @@ idWindow::ParseExpression
 Returns a register index
 ================
 */
-int idWindow::ParseExpression(idTokenParser *src, idWinVar *var, int component) {
+// EPM_BEGIN - #64Bit support
+intptr_t idWindow::ParseExpression(idTokenParser *src, idWinVar *var, intptr_t component) {
+// EPM_END
 	return ParseExpressionPriority( src, TOP_PRIORITY, var );
 }
 
@@ -3031,7 +3061,7 @@ void idWindow::ReadFromDemoFile( class idDemoFile *f, bool rebuild ) {
 	if (rebuild) {
 		CommonInit();
 	}
-	
+
 	f->SetLog(true, "window1");
 	backGroundName = f->ReadHashString();
 	f->SetLog(true, backGroundName);
@@ -3103,7 +3133,7 @@ void idWindow::ReadFromDemoFile( class idDemoFile *f, bool rebuild ) {
 		f->ReadInt ( td.offset );
 
 		float startTime, accelTime, linearTime, decelTime;
-		idVec4 startValue, endValue;	   
+		idVec4 startValue, endValue;
 		f->ReadFloat( startTime );
 		f->ReadFloat( accelTime );
 		f->ReadFloat( linearTime );
@@ -3111,7 +3141,7 @@ void idWindow::ReadFromDemoFile( class idDemoFile *f, bool rebuild ) {
 		f->ReadVec4( startValue );
 		f->ReadVec4( endValue );
 		td.interp.Init( startTime, accelTime, decelTime, accelTime + linearTime + decelTime, startValue, endValue );
-		
+
 		// read this for correct data padding with the win32 savegames
 		// the extrapolate is correctly initialized through the above Init call
 		int extrapolationType;
@@ -3150,7 +3180,7 @@ void idWindow::ReadFromDemoFile( class idDemoFile *f, bool rebuild ) {
 			f->ReadFloat( ff );
 			expressionRegisters.Append(ff);
 		}
-	
+
 		regList.ReadFromDemoFile(f);
 
 	}
@@ -3223,7 +3253,7 @@ void idWindow::WriteToDemoFile( class idDemoFile *f ) {
 	for (i = 0; i < c; i++) {
 		f->WriteInt( 0 );
 		f->WriteInt( transitions[i].offset );
-		
+
 		f->WriteFloat( transitions[i].interp.GetStartTime() );
 		f->WriteFloat( transitions[i].interp.GetAccelTime() );
 		f->WriteFloat( transitions[i].interp.GetLinearTime() );
@@ -3513,7 +3543,7 @@ void idWindow::ReadFromSaveGame( idFile *savefile ) {
 		idStr fontName;
 		savefile->ReadString( fontName );
 		font = renderSystem->RegisterFont( fontName );
-//	} 
+//	}
 
 	ReadSaveGameString( name, savefile );
 	ReadSaveGameString( comment, savefile );
@@ -3562,7 +3592,7 @@ void idWindow::ReadFromSaveGame( idFile *savefile ) {
 			overChild = children[i];
 		}
 	}
-	
+
 	// Scripts
 	for ( i = 0; i < SCRIPT_COUNT; i++ ) {
 		if ( scripts[i] ) {
@@ -3657,37 +3687,39 @@ void idWindow::FixupTransitions() {
 		transitions[i].data = NULL;
 		if ( dw != NULL && ( dw->win != NULL || dw->simp != NULL ) ){
 			if ( dw->win != NULL ) {
-				if ( transitions[i].offset == (int)&( ( idWindow * ) 0 )->rect ) {
+// EPM_BEGIN - #64Bit support
+				if ( transitions[i].offset == (intptr_t)&( ( idWindow * ) 0 )->rect ) {
 					transitions[i].data = &dw->win->rect;
-				} else if ( transitions[i].offset == (int)&( ( idWindow * ) 0 )->backColor ) {
+				} else if ( transitions[i].offset == (intptr_t)&( ( idWindow * ) 0 )->backColor ) {
 					transitions[i].data = &dw->win->backColor;
-				} else if ( transitions[i].offset == (int)&( ( idWindow * ) 0 )->matColor ) {
+				} else if ( transitions[i].offset == (intptr_t)&( ( idWindow * ) 0 )->matColor ) {
 					transitions[i].data = &dw->win->matColor;
-				} else if ( transitions[i].offset == (int)&( ( idWindow * ) 0 )->foreColor ) {
+				} else if ( transitions[i].offset == (intptr_t)&( ( idWindow * ) 0 )->foreColor ) {
 					transitions[i].data = &dw->win->foreColor;
-				} else if ( transitions[i].offset == (int)&( ( idWindow * ) 0 )->borderColor ) {
+				} else if ( transitions[i].offset == (intptr_t)&( ( idWindow * ) 0 )->borderColor ) {
 					transitions[i].data = &dw->win->borderColor;
-				} else if ( transitions[i].offset == (int)&( ( idWindow * ) 0 )->textScale ) {
+				} else if ( transitions[i].offset == (intptr_t)&( ( idWindow * ) 0 )->textScale ) {
 					transitions[i].data = &dw->win->textScale;
-				} else if ( transitions[i].offset == (int)&( ( idWindow * ) 0 )->rotate ) {
+				} else if ( transitions[i].offset == (intptr_t)&( ( idWindow * ) 0 )->rotate ) {
 					transitions[i].data = &dw->win->rotate;
 				}
 			} else {
-				if ( transitions[i].offset == (int)&( ( idSimpleWindow * ) 0 )->rect ) {
+				if ( transitions[i].offset == (intptr_t)&( ( idSimpleWindow * ) 0 )->rect ) {
 					transitions[i].data = &dw->simp->rect;
-				} else if ( transitions[i].offset == (int)&( ( idSimpleWindow * ) 0 )->backColor ) {
+				} else if ( transitions[i].offset == (intptr_t)&( ( idSimpleWindow * ) 0 )->backColor ) {
 					transitions[i].data = &dw->simp->backColor;
-				} else if ( transitions[i].offset == (int)&( ( idSimpleWindow * ) 0 )->matColor ) {
+				} else if ( transitions[i].offset == (intptr_t)&( ( idSimpleWindow * ) 0 )->matColor ) {
 					transitions[i].data = &dw->simp->matColor;
-				} else if ( transitions[i].offset == (int)&( ( idSimpleWindow * ) 0 )->foreColor ) {
+				} else if ( transitions[i].offset == (intptr_t)&( ( idSimpleWindow * ) 0 )->foreColor ) {
 					transitions[i].data = &dw->simp->foreColor;
-				} else if ( transitions[i].offset == (int)&( ( idSimpleWindow * ) 0 )->borderColor ) {
+				} else if ( transitions[i].offset == (intptr_t)&( ( idSimpleWindow * ) 0 )->borderColor ) {
 					transitions[i].data = &dw->simp->borderColor;
-				} else if ( transitions[i].offset == (int)&( ( idSimpleWindow * ) 0 )->textScale ) {
+				} else if ( transitions[i].offset == (intptr_t)&( ( idSimpleWindow * ) 0 )->textScale ) {
 					transitions[i].data = &dw->simp->textScale;
-				} else if ( transitions[i].offset == (int)&( ( idSimpleWindow * ) 0 )->rotate ) {
+				} else if ( transitions[i].offset == (intptr_t)&( ( idSimpleWindow * ) 0 )->rotate ) {
 					transitions[i].data = &dw->simp->rotate;
 				}
+// EPM_END
 			}
 		}
 		if ( transitions[i].data == NULL ) {
@@ -3745,12 +3777,14 @@ void idWindow::FixupParms() {
 			const char *p = (const char*)(ops[i].a);
 			idWinVar *var = GetWinVarByName(p, true);
 			delete []p;
-			ops[i].a = (int)var;
+// EPM_BEGIN - #64Bit support
+			ops[i].a = reinterpret_cast<intptr_t>(var);
+// EPM_END
 			ops[i].b = -1;
 		}
 	}
-	
-	
+
+
 	if (flags & WIN_DESKTOP) {
 		CalcRects(0,0);
 	}
@@ -3865,16 +3899,16 @@ idWindow* idWindow::FindChildByPoint ( float x, float y, idWindow** below ) {
 	if ( !Contains ( drawRect, x, y ) ) {
 		return NULL;
 	}
-		
+
 	for (int i = c - 1; i >= 0 ; i-- ) {
 		idWindow* found = children[i]->FindChildByPoint ( x, y, below );
 		if ( found ) {
 			if ( *below ) {
 				continue;
 			}
-			
+
 			return found;
-		}									
+		}
 	}
 
 	return this;
@@ -3944,7 +3978,7 @@ void idWindow::RemoveChild ( idWindow *win ) {
 
 	// Remove the child window
 	children.Remove ( win );
-	
+
 	for ( find = 0; find < drawWindows.Num(); find ++ )
 	{
 		if ( drawWindows[find].win == win )
@@ -3965,7 +3999,7 @@ Inserts the given window as a child into the given location in the zorder.
 bool idWindow::InsertChild ( idWindow *win, idWindow* before )
 {
 	AddChild ( win );
-		
+
 	win->parent = this;
 
 	drawWin_t dwt;
@@ -3973,7 +4007,7 @@ bool idWindow::InsertChild ( idWindow *win, idWindow* before )
 	dwt.win = win;
 
 	// If not inserting before anything then just add it at the end
-	if ( before ) {		
+	if ( before ) {
 		int index;
 		index = GetChildIndex ( before );
 		if ( index != -1 ) {
@@ -3981,7 +4015,7 @@ bool idWindow::InsertChild ( idWindow *win, idWindow* before )
 			return true;
 		}
 	}
-	
+
 	drawWindows.Append ( dwt );
 	return true;
 }
@@ -3995,12 +4029,12 @@ void idWindow::ScreenToClient ( idRectangle* r ) {
 	int		  x;
 	int		  y;
 	idWindow* p;
-	
+
 	for ( p = this, x = 0, y = 0; p; p = p->parent ) {
 		x += p->rect.x();
 		y += p->rect.y();
 	}
-	
+
 	r->x -= x;
 	r->y -= y;
 }
@@ -4014,25 +4048,25 @@ void idWindow::ClientToScreen ( idRectangle* r ) {
 	int		  x;
 	int		  y;
 	idWindow* p;
-	
+
 	for ( p = this, x = 0, y = 0; p; p = p->parent ) {
 		x += p->rect.x();
 		y += p->rect.y();
 	}
-	
+
 	r->x += x;
-	r->y += y;	
+	r->y += y;
 }
 
 /*
 ================
 idWindow::SetDefaults
 
-Set the window do a default window with no text, no background and 
+Set the window do a default window with no text, no background and
 default colors, etc..
 ================
 */
-void idWindow::SetDefaults () {	
+void idWindow::SetDefaults () {
 	forceAspectWidth = 640.0f;
 	forceAspectHeight = 480.0f;
 	matScalex = 1;
@@ -4052,7 +4086,7 @@ void idWindow::SetDefaults () {
 	hoverColor = idVec4(1, 1, 1, 1);
 	matColor = idVec4(1, 1, 1, 1);
 	borderColor.Zero();
-	text = "";	
+	text = "";
 
 	background = NULL;
 	backGroundName = "";
@@ -4063,21 +4097,21 @@ void idWindow::SetDefaults () {
 idWindow::UpdateFromDictionary
 
 The editor only has a dictionary to work with so the easiest way to push the
-values of the dictionary onto the window is for the window to interpret the 
+values of the dictionary onto the window is for the window to interpret the
 dictionary as if were a file being parsed.
 ================
 */
 bool idWindow::UpdateFromDictionary ( idDict& dict ) {
 	const idKeyValue*	kv;
 	int					i;
-	
+
 	SetDefaults ( );
-	
+
 	// Clear all registers since they will get recreated
 	regList.Reset ( );
 	expressionRegisters.Clear ( );
 	ops.Clear ( );
-	
+
 	for ( i = 0; i < dict.GetNumKeyVals(); i ++ ) {
 		kv = dict.GetKeyVal ( i );
 
@@ -4099,11 +4133,11 @@ bool idWindow::UpdateFromDictionary ( idDict& dict ) {
 			}
 		}
 	}
-			
+
 	EvalRegs(-1, true);
 
 	SetupFromState();
 	PostParse();
-	
+
 	return true;
 }

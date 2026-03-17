@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -52,12 +52,12 @@ void P_ArchivePlayers (void)
     int		i;
     int		j;
     player_t*	dest;
-		
+
     for (i=0 ; i<MAXPLAYERS ; i++)
     {
 	if (!::g->playeringame[i])
 	    continue;
-	
+
 	PADSAVEP();
 
 	dest = (player_t *)::g->save_p;
@@ -67,7 +67,7 @@ void P_ArchivePlayers (void)
 	{
 	    if (dest->psprites[j].state)
 	    {
-		dest->psprites[j].state 
+		dest->psprites[j].state
 			= (state_t *)(dest->psprites[j].state-::g->states);
 	    }
 	}
@@ -83,19 +83,19 @@ void P_UnArchivePlayers (void)
 {
     int		i;
     int		j;
-	
+
     for (i=0 ; i<MAXPLAYERS ; i++)
     {
 	if (!::g->playeringame[i])
 	    continue;
-	
+
 	PADSAVEP();
 
 	memcpy (&::g->players[i],::g->save_p, sizeof(player_t));
 	::g->save_p += sizeof(player_t);
-	
+
 	// will be set when unarc thinker
-	::g->players[i].mo = NULL;	
+	::g->players[i].mo = NULL;
 	::g->players[i].message = NULL;
 	::g->players[i].attacker = NULL;
 
@@ -103,8 +103,10 @@ void P_UnArchivePlayers (void)
 	{
 	    if (::g->players[i]. psprites[j].state)
 	    {
-		::g->players[i]. psprites[j].state 
-		    = &::g->states[ (int)::g->players[i].psprites[j].state ];
+		::g->players[i]. psprites[j].state
+// EPM_BEGIN - #64Bit support
+		    = &::g->states[ (intptr_t)::g->players[i].psprites[j].state ];
+// EPM_END
 	    }
 	}
     }
@@ -122,9 +124,9 @@ void P_ArchiveWorld (void)
     line_t*		li;
     side_t*		si;
     short*		put;
-	
+
     put = (short *)::g->save_p;
-    
+
     // do ::g->sectors
     for (i=0, sec = ::g->sectors ; i < ::g->numsectors ; i++,sec++)
     {
@@ -137,7 +139,7 @@ void P_ArchiveWorld (void)
 	*put++ = sec->tag;		// needed?
     }
 
-    
+
     // do ::g->lines
     for (i=0, li = ::g->lines ; i < ::g->numlines ; i++,li++)
     {
@@ -148,14 +150,14 @@ void P_ArchiveWorld (void)
 	{
 	    if (li->sidenum[j] == -1)
 		continue;
-	    
+
 	    si = &::g->sides[li->sidenum[j]];
 
 	    *put++ = si->textureoffset >> FRACBITS;
 	    *put++ = si->rowoffset >> FRACBITS;
 	    *put++ = si->toptexture;
 	    *put++ = si->bottomtexture;
-	    *put++ = si->midtexture;	
+	    *put++ = si->midtexture;
 	}
     }
 
@@ -179,9 +181,9 @@ void P_UnArchiveWorld (void)
     line_t*		li;
     side_t*		si;
     short*		get;
-	
+
     get = (short *)::g->save_p;
-    
+
     // do ::g->sectors
     for (i=0, sec = ::g->sectors ; i < ::g->numsectors ; i++,sec++)
     {
@@ -195,7 +197,7 @@ void P_UnArchiveWorld (void)
 	sec->specialdata = 0;
 	sec->soundtarget = 0;
     }
-    
+
     // do ::g->lines
     for (i=0, li = ::g->lines ; i < ::g->numlines ; i++,li++)
     {
@@ -219,7 +221,7 @@ void P_UnArchiveWorld (void)
 	::g->braintargeton = *get++;
 	::g->easy = *get++;
 
-    ::g->save_p = (byte *)get;	
+    ::g->save_p = (byte *)get;
 }
 
 
@@ -289,7 +291,7 @@ void P_ArchiveThinkers (void)
 	glow_t*			glow;
 
 	int i;
-	
+
 	// save off the current thinkers
 	//I_Printf( "Savegame on leveltime %d\n====================\n", ::g->leveltime );
 
@@ -348,7 +350,7 @@ void P_ArchiveThinkers (void)
 			// Is this the head of a block list?
 			int	blockx = (mobj->x - ::g->bmaporgx)>>MAPBLOCKSHIFT;
 			int	blocky = (mobj->y - ::g->bmaporgy)>>MAPBLOCKSHIFT;
-			if ( blockx >= 0 && blockx < ::g->bmapwidth && blocky >= 0 && blocky < ::g->bmapheight 
+			if ( blockx >= 0 && blockx < ::g->bmapwidth && blocky >= 0 && blocky < ::g->bmapheight
 				&& (mobj_t*)th == ::g->blocklinks[blocky*::g->bmapwidth+blockx] ) {
 
 					*::g->save_p++ = 1;
@@ -622,14 +624,18 @@ void P_UnArchiveThinkers (void)
 			mobj = (mobj_t*)DoomLib::Z_Malloc(sizeof(*mobj), PU_LEVEL, NULL);
 			memcpy (mobj, ::g->save_p, sizeof(*mobj));
 			::g->save_p += sizeof(*mobj);
-			mobj->state = &::g->states[(int)mobj->state];
+// EPM_BEGIN - #64Bit support
+			mobj->state = &::g->states[(intptr_t)mobj->state];
+// EPM_END
 
 			mobj->target = NULL;
 			mobj->tracer = NULL;
 
 			if (mobj->player)
 			{
-				mobj->player = &::g->players[(int)mobj->player-1];
+// EPM_BEGIN - #64Bit support
+				mobj->player = &::g->players[(intptr_t)mobj->player-1];
+// EPM_END
 				mobj->player->mo = mobj;
 			}
 
@@ -693,7 +699,9 @@ void P_UnArchiveThinkers (void)
 			ceiling = (ceiling_t*)DoomLib::Z_Malloc(sizeof(*ceiling), PU_LEVEL, NULL);
 			memcpy (ceiling, ::g->save_p, sizeof(*ceiling));
 			::g->save_p += sizeof(*ceiling);
-			ceiling->sector = &::g->sectors[(int)ceiling->sector];
+// EPM_BEGIN - #64Bit support
+			ceiling->sector = &::g->sectors[(intptr_t)ceiling->sector];
+// EPM_END
 			ceiling->sector->specialdata = ceiling;
 
 			if (ceiling->thinker.function.acp1)
@@ -708,7 +716,9 @@ void P_UnArchiveThinkers (void)
 			door = (vldoor_t*)DoomLib::Z_Malloc(sizeof(*door), PU_LEVEL, NULL);
 			memcpy (door, ::g->save_p, sizeof(*door));
 			::g->save_p += sizeof(*door);
-			door->sector = &::g->sectors[(int)door->sector];
+// EPM_BEGIN - #64Bit support
+			door->sector = &::g->sectors[(intptr_t)door->sector];
+// EPM_END
 			door->sector->specialdata = door;
 			door->thinker.function.acp1 = (actionf_p1)T_VerticalDoor;
 			P_AddThinker (&door->thinker);
@@ -719,7 +729,9 @@ void P_UnArchiveThinkers (void)
 			floor = (floormove_t*)DoomLib::Z_Malloc (sizeof(*floor), PU_LEVEL, NULL);
 			memcpy (floor, ::g->save_p, sizeof(*floor));
 			::g->save_p += sizeof(*floor);
-			floor->sector = &::g->sectors[(int)floor->sector];
+// EPM_BEGIN - #64Bit support
+			floor->sector = &::g->sectors[(intptr_t)floor->sector];
+// EPM_END
 			floor->sector->specialdata = floor;
 			floor->thinker.function.acp1 = (actionf_p1)T_MoveFloor;
 			P_AddThinker (&floor->thinker);
@@ -730,7 +742,9 @@ void P_UnArchiveThinkers (void)
 			plat = (plat_t*)DoomLib::Z_Malloc (sizeof(*plat), PU_LEVEL, NULL);
 			memcpy (plat, ::g->save_p, sizeof(*plat));
 			::g->save_p += sizeof(*plat);
-			plat->sector = &::g->sectors[(int)plat->sector];
+// EPM_BEGIN - #64Bit support
+			plat->sector = &::g->sectors[(intptr_t)plat->sector];
+// EPM_END
 			plat->sector->specialdata = plat;
 
 			if (plat->thinker.function.acp1)
@@ -745,7 +759,9 @@ void P_UnArchiveThinkers (void)
 			fire = (fireflicker_t*)DoomLib::Z_Malloc (sizeof(*fire), PU_LEVEL, NULL);
 			memcpy (fire, ::g->save_p, sizeof(*fire));
 			::g->save_p += sizeof(*fire);
-			fire->sector = &::g->sectors[(int)fire->sector];
+// EPM_BEGIN - #64Bit support
+			fire->sector = &::g->sectors[(intptr_t)fire->sector];
+// EPM_END
 			fire->thinker.function.acp1 = (actionf_p1)T_FireFlicker;
 			P_AddThinker (&fire->thinker);
 			break;
@@ -755,7 +771,9 @@ void P_UnArchiveThinkers (void)
 			flash = (lightflash_t*)DoomLib::Z_Malloc (sizeof(*flash), PU_LEVEL, NULL);
 			memcpy (flash, ::g->save_p, sizeof(*flash));
 			::g->save_p += sizeof(*flash);
-			flash->sector = &::g->sectors[(int)flash->sector];
+// EPM_BEGIN - #64Bit support
+			flash->sector = &::g->sectors[(intptr_t)flash->sector];
+// EPM_END
 			flash->thinker.function.acp1 = (actionf_p1)T_LightFlash;
 			P_AddThinker (&flash->thinker);
 			break;
@@ -765,7 +783,9 @@ void P_UnArchiveThinkers (void)
 			strobe = (strobe_t*)DoomLib::Z_Malloc (sizeof(*strobe), PU_LEVEL, NULL);
 			memcpy (strobe, ::g->save_p, sizeof(*strobe));
 			::g->save_p += sizeof(*strobe);
-			strobe->sector = &::g->sectors[(int)strobe->sector];
+// EPM_BEGIN - #64Bit support
+			strobe->sector = &::g->sectors[(intptr_t)strobe->sector];
+// EPM_END
 			strobe->thinker.function.acp1 = (actionf_p1)T_StrobeFlash;
 			P_AddThinker (&strobe->thinker);
 			break;
@@ -775,7 +795,9 @@ void P_UnArchiveThinkers (void)
 			glow = (glow_t*)DoomLib::Z_Malloc (sizeof(*glow), PU_LEVEL, NULL);
 			memcpy (glow, ::g->save_p, sizeof(*glow));
 			::g->save_p += sizeof(*glow);
-			glow->sector = &::g->sectors[(int)glow->sector];
+// EPM_BEGIN - #64Bit support
+			glow->sector = &::g->sectors[(intptr_t)glow->sector];
+// EPM_END
 			glow->thinker.function.acp1 = (actionf_p1)T_Glow;
 			P_AddThinker (&glow->thinker);
 			break;
@@ -815,7 +837,7 @@ void P_ArchiveSpecials (void)
     strobe_t*		strobe;
     glow_t*		glow;
     int			i;
-	
+
     // save off the current thinkers
     for (th = ::g->thinkercap.next ; th != &::g->thinkercap ; th=th->next)
     {
@@ -824,7 +846,7 @@ void P_ArchiveSpecials (void)
 	    for (i = 0; i < MAXCEILINGS;i++)
 		if (::g->activeceilings[i] == (ceiling_t *)th)
 		    break;
-	    
+
 	    if (i<MAXCEILINGS)
 	    {
 		*::g->save_p++ = tc_ceiling;
@@ -836,7 +858,7 @@ void P_ArchiveSpecials (void)
 	    }
 	    continue;
 	}
-			
+
 	if (th->function.acp1 == (actionf_p1)T_MoveCeiling)
 	{
 	    *::g->save_p++ = tc_ceiling;
@@ -847,7 +869,7 @@ void P_ArchiveSpecials (void)
 	    ceiling->sector = (sector_t *)(ceiling->sector - ::g->sectors);
 	    continue;
 	}
-			
+
 	if (th->function.acp1 == (actionf_p1)T_VerticalDoor)
 	{
 	    *::g->save_p++ = tc_door;
@@ -858,7 +880,7 @@ void P_ArchiveSpecials (void)
 	    door->sector = (sector_t *)(door->sector - ::g->sectors);
 	    continue;
 	}
-			
+
 	if (th->function.acp1 == (actionf_p1)T_MoveFloor)
 	{
 	    *::g->save_p++ = tc_floor;
@@ -869,7 +891,7 @@ void P_ArchiveSpecials (void)
 	    floor->sector = (sector_t *)(floor->sector - ::g->sectors);
 	    continue;
 	}
-			
+
 	if (th->function.acp1 == (actionf_p1)T_PlatRaise)
 	{
 	    *::g->save_p++ = tc_plat;
@@ -880,7 +902,7 @@ void P_ArchiveSpecials (void)
 	    plat->sector = (sector_t *)(plat->sector - ::g->sectors);
 	    continue;
 	}
-			
+
 	if (th->function.acp1 == (actionf_p1)T_LightFlash)
 	{
 	    *::g->save_p++ = tc_flash;
@@ -891,7 +913,7 @@ void P_ArchiveSpecials (void)
 	    flash->sector = (sector_t *)(flash->sector - ::g->sectors);
 	    continue;
 	}
-			
+
 	if (th->function.acp1 == (actionf_p1)T_StrobeFlash)
 	{
 	    *::g->save_p++ = tc_strobe;
@@ -902,7 +924,7 @@ void P_ArchiveSpecials (void)
 	    strobe->sector = (sector_t *)(strobe->sector - ::g->sectors);
 	    continue;
 	}
-			
+
 	if (th->function.acp1 == (actionf_p1)T_Glow)
 	{
 	    *::g->save_p++ = tc_glow;
@@ -914,9 +936,9 @@ void P_ArchiveSpecials (void)
 	    continue;
 	}
     }
-	
+
     // add a terminating marker
-    *::g->save_p++ = tc_endspecials;	
+    *::g->save_p++ = tc_endspecials;
 
 }
 
@@ -943,13 +965,15 @@ void P_UnArchiveSpecials (void)
 	{
 	  case tc_endspecials:
 	    return;	// end of list
-			
+
 	  case tc_ceiling:
 	    PADSAVEP();
 	    ceiling = (ceiling_t*)DoomLib::Z_Malloc(sizeof(*ceiling), PU_LEVEL, NULL);
 	    memcpy (ceiling, ::g->save_p, sizeof(*ceiling));
 	    ::g->save_p += sizeof(*ceiling);
-	    ceiling->sector = &::g->sectors[(int)ceiling->sector];
+// EPM_BEGIN - #64Bit support
+	    ceiling->sector = &::g->sectors[(intptr_t)ceiling->sector];
+// EPM_END
 	    ceiling->sector->specialdata = ceiling;
 
 	    if (ceiling->thinker.function.acp1)
@@ -958,35 +982,41 @@ void P_UnArchiveSpecials (void)
 	    P_AddThinker (&ceiling->thinker);
 	    P_AddActiveCeiling(ceiling);
 	    break;
-				
+
 	  case tc_door:
 	    PADSAVEP();
 	    door = (vldoor_t*)DoomLib::Z_Malloc(sizeof(*door), PU_LEVEL, NULL);
 	    memcpy (door, ::g->save_p, sizeof(*door));
 	    ::g->save_p += sizeof(*door);
-	    door->sector = &::g->sectors[(int)door->sector];
+// EPM_BEGIN - #64Bit support
+	    door->sector = &::g->sectors[(intptr_t)door->sector];
+// EPM_END
 	    door->sector->specialdata = door;
 	    door->thinker.function.acp1 = (actionf_p1)T_VerticalDoor;
 	    P_AddThinker (&door->thinker);
 	    break;
-				
+
 	  case tc_floor:
 	    PADSAVEP();
 	    floor = (floormove_t*)DoomLib::Z_Malloc (sizeof(*floor), PU_LEVEL, NULL);
 	    memcpy (floor, ::g->save_p, sizeof(*floor));
 	    ::g->save_p += sizeof(*floor);
-	    floor->sector = &::g->sectors[(int)floor->sector];
+// EPM_BEGIN - #64Bit support
+	    floor->sector = &::g->sectors[(intptr_t)floor->sector];
+// EPM_END
 	    floor->sector->specialdata = floor;
 	    floor->thinker.function.acp1 = (actionf_p1)T_MoveFloor;
 	    P_AddThinker (&floor->thinker);
 	    break;
-				
+
 	  case tc_plat:
 	    PADSAVEP();
 	    plat = (plat_t*)DoomLib::Z_Malloc (sizeof(*plat), PU_LEVEL, NULL);
 	    memcpy (plat, ::g->save_p, sizeof(*plat));
 	    ::g->save_p += sizeof(*plat);
-	    plat->sector = &::g->sectors[(int)plat->sector];
+// EPM_BEGIN - #64Bit support
+	    plat->sector = &::g->sectors[(intptr_t)plat->sector];
+// EPM_END
 	    plat->sector->specialdata = plat;
 
 	    if (plat->thinker.function.acp1)
@@ -995,42 +1025,48 @@ void P_UnArchiveSpecials (void)
 	    P_AddThinker (&plat->thinker);
 	    P_AddActivePlat(plat);
 	    break;
-				
+
 	  case tc_flash:
 	    PADSAVEP();
 	    flash = (lightflash_t*)DoomLib::Z_Malloc (sizeof(*flash), PU_LEVEL, NULL);
 	    memcpy (flash, ::g->save_p, sizeof(*flash));
 	    ::g->save_p += sizeof(*flash);
-	    flash->sector = &::g->sectors[(int)flash->sector];
+// EPM_BEGIN - #64Bit support
+	    flash->sector = &::g->sectors[(intptr_t)flash->sector];
+// EPM_END
 	    flash->thinker.function.acp1 = (actionf_p1)T_LightFlash;
 	    P_AddThinker (&flash->thinker);
 	    break;
-				
+
 	  case tc_strobe:
 	    PADSAVEP();
 	    strobe = (strobe_t*)DoomLib::Z_Malloc (sizeof(*strobe), PU_LEVEL, NULL);
 	    memcpy (strobe, ::g->save_p, sizeof(*strobe));
 	    ::g->save_p += sizeof(*strobe);
-	    strobe->sector = &::g->sectors[(int)strobe->sector];
+// EPM_BEGIN - #64Bit support
+	    strobe->sector = &::g->sectors[(intptr_t)strobe->sector];
+// EPM_END
 	    strobe->thinker.function.acp1 = (actionf_p1)T_StrobeFlash;
 	    P_AddThinker (&strobe->thinker);
 	    break;
-				
+
 	  case tc_glow:
 	    PADSAVEP();
 	    glow = (glow_t*)DoomLib::Z_Malloc (sizeof(*glow), PU_LEVEL, NULL);
 	    memcpy (glow, ::g->save_p, sizeof(*glow));
 	    ::g->save_p += sizeof(*glow);
-	    glow->sector = &::g->sectors[(int)glow->sector];
+// EPM_BEGIN - #64Bit support
+	    glow->sector = &::g->sectors[(intptr_t)glow->sector];
+// EPM_END
 	    glow->thinker.function.acp1 = (actionf_p1)T_Glow;
 	    P_AddThinker (&glow->thinker);
 	    break;
-				
+
 	  default:
 	    I_Error ("P_UnarchiveSpecials:Unknown tclass %i "
 		     "in savegame",tclass);
 	}
-	
+
     }
 
 }

@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ typedef struct {
 
 /*
 ================================================
-idLocalUserWin 
+idLocalUserWin
 ================================================
 */
 class idLocalUserWin : public idLocalUser {
@@ -44,6 +44,12 @@ public:
 	static const int MAX_GAMERTAG_CHARS = 16;	// max number of UTF-8 characters to show
 
 	idLocalUserWin() : inputDevice( 0 ) {}
+
+// EPM_BEGIN - #Modernization pass
+	// Due to unique_ptr we need to use move semantics since they cannot be copied
+	idLocalUserWin( idLocalUserWin && other ) = default;
+	idLocalUserWin & operator=( idLocalUserWin && other ) = default;
+// EPM_END
 
 	//==========================================================================================
 	// idLocalUser interface

@@ -98,10 +98,12 @@ EXTERN void jpeg_free_large JPP((j_common_ptr cinfo, void FAR * object,
  * Conversely, zero may be returned to always use the minimum amount of memory.
  */
 
-EXTERN long jpeg_mem_available JPP((j_common_ptr cinfo,
-				    long min_bytes_needed,
-				    long max_bytes_needed,
-				    long already_allocated));
+// EPM_BEGIN - #64Bit support
+EXTERN size_t jpeg_mem_available JPP((j_common_ptr cinfo,
+				    size_t min_bytes_needed,
+				    size_t max_bytes_needed,
+				    size_t already_allocated));
+// EPM_END
 
 
 /*

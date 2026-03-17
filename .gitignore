@@ -9,3 +9,5 @@ build/
 neo/amplitude/Debug/*
 neo/amplitude/Release/*
 neo/amplitude/Retail/*
+neo/amplitude/x64/*
+neo/x64/*

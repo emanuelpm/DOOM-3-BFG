@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -79,7 +79,7 @@ typedef struct {
 	char		consoleText[512], returnedText[512];
 	bool		quitOnClose;
 	int			windowWidth, windowHeight;
-	 
+
 	WNDPROC		SysInputLineWndProc;
 
 	idEditField	historyEditLines[COMMAND_HISTORY];
@@ -94,7 +94,9 @@ typedef struct {
 
 static WinConData s_wcd;
 
-static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+// EPM_BEGIN - #64Bit support
+static LRESULT WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+// EPM_END
 	char *cmdString;
 	static bool s_timePolarity;
 
@@ -116,7 +118,9 @@ static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 			if ( ( HWND ) lParam == s_wcd.hwndBuffer ) {
 				SetBkColor( ( HDC ) wParam, RGB( 0x00, 0x00, 0x80 ) );
 				SetTextColor( ( HDC ) wParam, RGB( 0xff, 0xff, 0x00 ) );
-				return ( long ) s_wcd.hbrEditBackground;
+// EPM_BEGIN - #64Bit support
+				return ( LRESULT ) s_wcd.hbrEditBackground;
+// EPM_END
 			} else if ( ( HWND ) lParam == s_wcd.hwndErrorBox ) {
 				if ( s_timePolarity & 1 ) {
 					SetBkColor( ( HDC ) wParam, RGB( 0x80, 0x80, 0x80 ) );
@@ -125,7 +129,9 @@ static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 					SetBkColor( ( HDC ) wParam, RGB( 0x80, 0x80, 0x80 ) );
 					SetTextColor( ( HDC ) wParam, RGB( 0x00, 0x0, 0x00 ) );
 				}
-				return ( long ) s_wcd.hbrErrorBackground;
+// EPM_BEGIN - #64Bit support
+				return ( LRESULT ) s_wcd.hbrErrorBackground;
+// EPM_END
 			}
 			break;
 		case WM_SYSCOMMAND:
@@ -166,7 +172,7 @@ static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 				assert( oldObject != 0 );
 				if ( oldObject )
 				{
-					StretchBlt( ( HDC ) wParam, 0, 0, s_wcd.windowWidth, s_wcd.windowHeight, 
+					StretchBlt( ( HDC ) wParam, 0, 0, s_wcd.windowWidth, s_wcd.windowHeight,
 						hdcScaled, 0, 0, 512, 384,
 						SRCCOPY );
 				}
@@ -263,7 +269,7 @@ LONG WINAPI InputLineWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 		}
 
 		// clear autocompletion buffer on normal key input
-		if ( ( key >= K_SPACE && key <= K_BACKSPACE ) || 
+		if ( ( key >= K_SPACE && key <= K_BACKSPACE ) ||
 			( key >= K_KP_SLASH && key <= K_KP_PLUS ) || ( key >= K_KP_STAR && key <= K_KP_EQUALS ) ) {
 			s_wcd.consoleField.ClearAutoComplete();
 		}
@@ -346,10 +352,10 @@ void Sys_CreateConsole() {
 	//
 	// create the input line
 	//
-	s_wcd.hwndInputLine = CreateWindow( "edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | 
+	s_wcd.hwndInputLine = CreateWindow( "edit", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER |
 												ES_LEFT | ES_AUTOHSCROLL,
 												6, 400, 528, 20,
-												s_wcd.hWnd, 
+												s_wcd.hWnd,
 												( HMENU ) INPUT_ID,	// child window ID
 												win32.hInstance, NULL );
 
@@ -358,21 +364,21 @@ void Sys_CreateConsole() {
 	//
 	s_wcd.hwndButtonCopy = CreateWindow( "button", NULL, BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 												5, 425, 72, 24,
-												s_wcd.hWnd, 
+												s_wcd.hWnd,
 												( HMENU ) COPY_ID,	// child window ID
 												win32.hInstance, NULL );
 	SendMessage( s_wcd.hwndButtonCopy, WM_SETTEXT, 0, ( LPARAM ) "copy" );
 
 	s_wcd.hwndButtonClear = CreateWindow( "button", NULL, BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 												82, 425, 72, 24,
-												s_wcd.hWnd, 
+												s_wcd.hWnd,
 												( HMENU ) CLEAR_ID,	// child window ID
 												win32.hInstance, NULL );
 	SendMessage( s_wcd.hwndButtonClear, WM_SETTEXT, 0, ( LPARAM ) "clear" );
 
 	s_wcd.hwndButtonQuit = CreateWindow( "button", NULL, BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 												462, 425, 72, 24,
-												s_wcd.hWnd, 
+												s_wcd.hWnd,
 												( HMENU ) QUIT_ID,	// child window ID
 												win32.hInstance, NULL );
 	SendMessage( s_wcd.hwndButtonQuit, WM_SETTEXT, 0, ( LPARAM ) "quit" );
@@ -381,15 +387,21 @@ void Sys_CreateConsole() {
 	//
 	// create the scrollbuffer
 	//
-	s_wcd.hwndBuffer = CreateWindow( "edit", NULL, WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_BORDER | 
+	s_wcd.hwndBuffer = CreateWindow( "edit", NULL, WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_BORDER |
 												ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY,
 												6, 40, 526, 354,
-												s_wcd.hWnd, 
+												s_wcd.hWnd,
 												( HMENU ) EDIT_ID,	// child window ID
 												win32.hInstance, NULL );
 	SendMessage( s_wcd.hwndBuffer, WM_SETFONT, ( WPARAM ) s_wcd.hfBufferFont, 0 );
 
+// EPM_BEGIN - #64Bit support
+#if defined(ID_WIN64)
+	s_wcd.SysInputLineWndProc = ( WNDPROC ) SetWindowLongPtr( s_wcd.hwndInputLine, GWLP_WNDPROC, ( LONG_PTR ) InputLineWndProc );
+#else
 	s_wcd.SysInputLineWndProc = ( WNDPROC ) SetWindowLong( s_wcd.hwndInputLine, GWL_WNDPROC, ( long ) InputLineWndProc );
+#endif
+// EPM_END
 	SendMessage( s_wcd.hwndInputLine, WM_SETFONT, ( WPARAM ) s_wcd.hfBufferFont, 0 );
 
 // don't show it now that we have a splash screen up
@@ -453,14 +465,14 @@ void Sys_ShowConsole( int visLevel, bool quitOnClose ) {
 ** Sys_ConsoleInput
 */
 char *Sys_ConsoleInput() {
-	
+
 	if ( s_wcd.consoleText[0] == 0 ) {
 		return NULL;
 	}
-		
+
 	strcpy( s_wcd.returnedText, s_wcd.consoleText );
 	s_wcd.consoleText[0] = 0;
-	
+
 	return s_wcd.returnedText;
 }
 
@@ -541,7 +553,7 @@ void Win_SetErrorText( const char *buf ) {
 	if ( !s_wcd.hwndErrorBox ) {
 		s_wcd.hwndErrorBox = CreateWindow( "static", NULL, WS_CHILD | WS_VISIBLE | SS_SUNKEN,
 													6, 5, 526, 30,
-													s_wcd.hWnd, 
+													s_wcd.hWnd,
 													( HMENU ) ERRORBOX_ID,	// child window ID
 													win32.hInstance, NULL );
 		SendMessage( s_wcd.hwndErrorBox, WM_SETFONT, ( WPARAM ) s_wcd.hfBufferFont, 0 );

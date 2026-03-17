@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -43,6 +43,10 @@ If you have questions concerning this license or the applicable additional terms
 #undef ID_PC_WIN64
 #undef ID_CONSOLE
 #undef ID_WIN32
+// EPM_BEGIN - #64Bit support
+#undef ID_WIN64
+#undef ID_64BIT
+// EPM_END
 #undef ID_LITTLE_ENDIAN
 
 #if defined(_WIN32)
@@ -70,6 +74,13 @@ If you have questions concerning this license or the applicable additional terms
 	#endif
 */
 
+// EPM_BEGIN - #64Bit support
+	#if defined(_WIN64)
+		#define ID_64BIT
+		#define ID_WIN64
+	#endif // defined(_WIN64)
+// EPM_END
+
 	#define ID_PC
 	#define ID_PC_WIN
 	#define ID_WIN32
@@ -79,6 +90,12 @@ If you have questions concerning this license or the applicable additional terms
 #endif
 
 #define ID_OPENGL
+
+// EPM_BEGIN - #Modernization pass
+#ifdef _DEBUG
+#define DEBUG
+#endif
+// EPM_END
 
 /*
 ================================================================================================
@@ -90,7 +107,13 @@ If you have questions concerning this license or the applicable additional terms
 
 #ifdef ID_PC_WIN
 
-#define	CPUSTRING						"x86"
+// EPM_BEGIN - #64Bit support
+#if defined(ID_64BIT)
+	#define	CPUSTRING						"x64"
+#else
+	#define	CPUSTRING						"x86"
+#endif
+// EPM_END
 
 #define	BUILD_STRING					"win-" CPUSTRING
 #define BUILD_OS_ID						0
@@ -184,7 +207,13 @@ bulk of the codebase, so it is the best place for analyze pragmas.
 
 // checking format strings catches a LOT of errors
 #include <CodeAnalysis\SourceAnnotations.h>
+// EPM_BEGIN - #Modernization pass
+#ifndef SAL_NO_ATTRIBUTE_DECLARATIONS
 #define	VERIFY_FORMAT_STRING	[SA_FormatString(Style="printf")]
+#else
+#define VERIFY_FORMAT_STRING
+#endif // SAL_NO_ATTRIBUTE_DECLARATIONS
+// EPM_END
 
 
 // We need to inform the compiler that Error() and FatalError() will

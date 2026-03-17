@@ -85,9 +85,11 @@ start_pass_downsample( j_compress_ptr cinfo ) {
 LOCAL void
 expand_right_edge( JSAMPARRAY image_data, int num_rows,
                    JDIMENSION input_cols, JDIMENSION output_cols ) {
-    register JSAMPROW ptr;
-    register JSAMPLE pixval;
-    register int count;
+// EPM_BEGIN - #Modernization pass
+    JSAMPROW ptr;
+    JSAMPLE pixval;
+    int count;
+// EPM_END
     int row;
     int numcols = (int) ( output_cols - input_cols );
 
@@ -210,8 +212,10 @@ h2v1_downsample( j_compress_ptr cinfo, jpeg_component_info * compptr,
     int outrow;
     JDIMENSION outcol;
     JDIMENSION output_cols = compptr->width_in_blocks * DCTSIZE;
-    register JSAMPROW inptr, outptr;
-    register int bias;
+// EPM_BEGIN - #Modernization pass
+    JSAMPROW inptr, outptr;
+    int bias;
+// EPM_END
 
     /* Expand input data enough to let all the output samples be generated
      * by the standard loop.  Special-casing padded output would be more
@@ -246,8 +250,10 @@ h2v2_downsample( j_compress_ptr cinfo, jpeg_component_info * compptr,
     int inrow, outrow;
     JDIMENSION outcol;
     JDIMENSION output_cols = compptr->width_in_blocks * DCTSIZE;
-    register JSAMPROW inptr0, inptr1, outptr;
-    register int bias;
+// EPM_BEGIN - #Modernization pass
+    JSAMPROW inptr0, inptr1, outptr;
+    int bias;
+// EPM_END
 
     /* Expand input data enough to let all the output samples be generated
      * by the standard loop.  Special-casing padded output would be more
@@ -289,7 +295,9 @@ h2v2_smooth_downsample( j_compress_ptr cinfo, jpeg_component_info * compptr,
     int inrow, outrow;
     JDIMENSION colctr;
     JDIMENSION output_cols = compptr->width_in_blocks * DCTSIZE;
-    register JSAMPROW inptr0, inptr1, above_ptr, below_ptr, outptr;
+// EPM_BEGIN - #Modernization pass
+    JSAMPROW inptr0, inptr1, above_ptr, below_ptr, outptr;
+// EPM_END
     INT32 membersum, neighsum, memberscale, neighscale;
 
     /* Expand input data enough to let all the output samples be generated
@@ -394,7 +402,9 @@ fullsize_smooth_downsample( j_compress_ptr cinfo, jpeg_component_info * compptr,
     int outrow;
     JDIMENSION colctr;
     JDIMENSION output_cols = compptr->width_in_blocks * DCTSIZE;
-    register JSAMPROW inptr, above_ptr, below_ptr, outptr;
+// EPM_BEGIN - #Modernization pass
+    JSAMPROW inptr, above_ptr, below_ptr, outptr;
+// EPM_END
     INT32 membersum, neighsum, memberscale, neighscale;
     int colsum, lastcolsum, nextcolsum;
 

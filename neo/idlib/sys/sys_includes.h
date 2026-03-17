@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -64,8 +64,15 @@ If you have questions concerning this license or the applicable additional terms
 #pragma warning(disable : 4100)				// unreferenced formal parameter
 #pragma warning(disable : 4127)				// conditional expression is constant
 #pragma warning(disable : 4244)				// conversion to smaller type, possible loss of data
+// EPM_BEGIN - #64Bit support
+// #TODO(emanuel): Would be great to actually fix these at some point :)
+#pragma warning(disable : 4267)				// conversion from 'size_t' to 'int', possible loss of data
+// EPM_END
 #pragma warning(disable : 4714)				// function marked as __forceinline not inlined
 #pragma warning(disable : 4996)				// unsafe string operations
+// EPM_BEGIN - #Modernization pass
+#pragma warning(disable : 5054)				// operator '+': deprecated between enumerations of different types
+// EPM_END
 
 #include <malloc.h>							// no malloc.h on mac or unix
 #include <windows.h>						// for qgl.h

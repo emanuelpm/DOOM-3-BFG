@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -483,7 +483,9 @@ idSIMD_SSE::ConvertJointQuatsToJointMats
 void VPCALL idSIMD_SSE::ConvertJointQuatsToJointMats( idJointMat *jointMats, const idJointQuat *jointQuats, const int numJoints ) {
 	assert( sizeof( idJointQuat ) == JOINTQUAT_SIZE );
 	assert( sizeof( idJointMat ) == JOINTMAT_SIZE );
-	assert( (int)(&((idJointQuat *)0)->t) == (int)(&((idJointQuat *)0)->q) + (int)sizeof( ((idJointQuat *)0)->q ) );
+// EPM_BEGIN - #64Bit support
+	assert( (intptr_t)(&((idJointQuat *)0)->t) == (intptr_t)(&((idJointQuat *)0)->q) + sizeof( ((idJointQuat *)0)->q ) );
+// EPM_END
 
 	const float * jointQuatPtr = (float *)jointQuats;
 	float * jointMatPtr = (float *)jointMats;
@@ -616,7 +618,9 @@ void VPCALL idSIMD_SSE::ConvertJointMatsToJointQuats( idJointQuat *jointQuats, c
 
 	assert( sizeof( idJointQuat ) == JOINTQUAT_SIZE );
 	assert( sizeof( idJointMat ) == JOINTMAT_SIZE );
-	assert( (int)(&((idJointQuat *)0)->t) == (int)(&((idJointQuat *)0)->q) + (int)sizeof( ((idJointQuat *)0)->q ) );
+// EPM_BEGIN - #64Bit support
+	assert( (intptr_t)(&((idJointQuat *)0)->t) == (intptr_t)(&((idJointQuat *)0)->q) + sizeof( ((idJointQuat *)0)->q ) );
+// EPM_END
 
 	const __m128 vector_float_zero		= _mm_setzero_ps();
 	const __m128 vector_float_one		= { 1.0f, 1.0f, 1.0f, 1.0f };

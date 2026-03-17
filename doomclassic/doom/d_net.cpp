@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -44,8 +44,8 @@ If you have questions concerning this license or the applicable additional terms
 
 
 void I_GetEvents( controller_t * );
-void D_ProcessEvents (void); 
-void G_BuildTiccmd (ticcmd_t *cmd, idUserCmdMgr *, int newTics ); 
+void D_ProcessEvents (void);
+void G_BuildTiccmd (ticcmd_t *cmd, idUserCmdMgr *, int newTics );
 void D_DoAdvanceDemo (void);
 
 extern bool globalNetworking;
@@ -55,7 +55,7 @@ extern bool globalNetworking;
 //
 // ::g->gametic is the tic about to (or currently being) run
 // ::g->maketic is the tick that hasn't had control made for it yet
-// ::g->nettics[] has the maketics for all ::g->players 
+// ::g->nettics[] has the maketics for all ::g->players
 //
 // a ::g->gametic cannot be run until ::g->nettics[] > ::g->gametic for all ::g->players
 //
@@ -74,13 +74,15 @@ extern bool globalNetworking;
 //
 int NetbufferSize (void)
 {
-	int size = (int)&(((doomdata_t *)0)->cmds[::g->netbuffer->numtics]);
+// EPM_BEGIN - #64Bit support
+	int size = (intptr_t)&(((doomdata_t *)0)->cmds[::g->netbuffer->numtics]);
+// EPM_END
 
 	return size;
 }
 
 //
-// Checksum 
+// Checksum
 //
 unsigned NetbufferChecksum (void)
 {
@@ -90,7 +92,9 @@ unsigned NetbufferChecksum (void)
 	c = 0x1234567;
 
 	if ( globalNetworking ) {
-		l = (NetbufferSize () - (int)&(((doomdata_t *)0)->retransmitfrom))/4;
+// EPM_BEGIN - #64Bit support
+		l = (NetbufferSize () - (intptr_t)&(((doomdata_t *)0)->retransmitfrom))/4;
+// EPM_END
 		for (i=0 ; i<l ; i++)
 			c += ((unsigned *)&::g->netbuffer->retransmitfrom)[i] * (i+1);
 	}
@@ -174,7 +178,7 @@ HSendPacket
 // Returns false if no packet is waiting
 //
 qboolean HGetPacket (void)
-{	
+{
 	if (::g->reboundpacket)
 	{
 		*::g->netbuffer = ::g->reboundstore;
@@ -239,7 +243,7 @@ qboolean HGetPacket (void)
 			fprintf (::g->debugfile,"\n");
 		}
 	}
-	return true;	
+	return true;
 }
 
 
@@ -265,7 +269,7 @@ void GetPackets (void)
 
 		// to save bytes, only the low byte of tic numbers are sent
 		// Figure out what the rest of the bytes are
-		realstart = ExpandTics (::g->netbuffer->starttic);		
+		realstart = ExpandTics (::g->netbuffer->starttic);
 		realend = (realstart+::g->netbuffer->numtics);
 
 		// check for exiting the game
@@ -294,7 +298,7 @@ void GetPackets (void)
 		::g->nodeforplayer[netconsole] = netnode;
 
 		// check for retransmit request
-		if ( ::g->resendcount[netnode] <= 0 
+		if ( ::g->resendcount[netnode] <= 0
 			&& (::g->netbuffer->checksum & NCMD_RETRANSMIT) )
 		{
 			::g->resendto[netnode] = ExpandTics(::g->netbuffer->retransmitfrom);
@@ -305,7 +309,7 @@ void GetPackets (void)
 		else
 			::g->resendcount[netnode]--;
 
-		// check for out of order / duplicated packet		
+		// check for out of order / duplicated packet
 		if (realend == ::g->nettics[netnode])
 			continue;
 
@@ -336,7 +340,7 @@ void GetPackets (void)
 
 			::g->remoteresend[netnode] = false;
 
-			start = ::g->nettics[netnode] - realstart;		
+			start = ::g->nettics[netnode] - realstart;
 			src = &::g->netbuffer->cmds[start];
 
 			while (::g->nettics[netnode] < realend)
@@ -371,7 +375,7 @@ void NetUpdate ( idUserCmdMgr * userCmdMgr )
 	::g->gametime = nowtime;
 
 	if (newtics <= 0) 	// nothing new to update
-		goto listen; 
+		goto listen;
 
 	if (::g->skiptics <= newtics)
 	{
@@ -422,7 +426,7 @@ void NetUpdate ( idUserCmdMgr * userCmdMgr )
 			::g->resendto[i] = ::g->maketic - ::g->doomcom.extratics;
 
 			for (j=0 ; j< ::g->netbuffer->numtics ; j++)
-				::g->netbuffer->cmds[j] = 
+				::g->netbuffer->cmds[j] =
 				::g->localcmds[(realstart+j)%BACKUPTICS];
 
 			if (::g->remoteresend[i])
@@ -659,7 +663,7 @@ bool TryRunTics ( idUserCmdMgr * userCmdMgr )
 	int		i;
 	int		lowtic_node = -1;
 
-	// get real tics		
+	// get real tics
 	::g->trt_entertic = I_GetTime ()/::g->ticdup;
 	::g->trt_realtics = ::g->trt_entertic - ::g->oldtrt_entertics;
 	::g->oldtrt_entertics = ::g->trt_entertic;
@@ -704,7 +708,7 @@ bool TryRunTics ( idUserCmdMgr * userCmdMgr )
 	}
 
 	if ( !::g->demoplayback )
-	{	
+	{
 		// ideally ::g->nettics[0] should be 1 - 3 tics above ::g->trt_lowtic
 		// if we are consistantly slower, speed up time
 		for (i=0 ; i<MAXPLAYERS ; i++) {
@@ -733,7 +737,7 @@ bool TryRunTics ( idUserCmdMgr * userCmdMgr )
 	}
 
 	// wait for new tics if needed
-	if (::g->trt_lowtic < ::g->gametic/::g->ticdup + ::g->trt_counts)	
+	if (::g->trt_lowtic < ::g->gametic/::g->ticdup + ::g->trt_counts)
 	{
 		int lagtime = 0;
 
@@ -781,7 +785,7 @@ bool TryRunTics ( idUserCmdMgr * userCmdMgr )
 					}
 				}
 			}
-		} 
+		}
 
 		return false;
 	}
@@ -813,7 +817,7 @@ bool TryRunTics ( idUserCmdMgr * userCmdMgr )
 				int			buf;
 				int			j;
 
-				buf = (::g->gametic/::g->ticdup)%BACKUPTICS; 
+				buf = (::g->gametic/::g->ticdup)%BACKUPTICS;
 				for (j=0 ; j<MAXPLAYERS ; j++)
 				{
 					cmd = &::g->netcmds[j][buf];

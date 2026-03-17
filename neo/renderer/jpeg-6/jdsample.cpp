@@ -189,9 +189,11 @@ int_upsample( j_decompress_ptr cinfo, jpeg_component_info * compptr,
               JSAMPARRAY input_data, JSAMPARRAY * output_data_ptr ) {
     my_upsample_ptr upsample = (my_upsample_ptr) cinfo->upsample;
     JSAMPARRAY output_data = *output_data_ptr;
-    register JSAMPROW inptr, outptr;
-    register JSAMPLE invalue;
-    register int h;
+// EPM_BEGIN - #Modernization pass
+    JSAMPROW inptr, outptr;
+    JSAMPLE invalue;
+    int h;
+// EPM_END
     JSAMPROW outend;
     int h_expand, v_expand;
     int inrow, outrow;
@@ -231,8 +233,10 @@ METHODDEF void
 h2v1_upsample( j_decompress_ptr cinfo, jpeg_component_info * compptr,
                JSAMPARRAY input_data, JSAMPARRAY * output_data_ptr ) {
     JSAMPARRAY output_data = *output_data_ptr;
-    register JSAMPROW inptr, outptr;
-    register JSAMPLE invalue;
+// EPM_BEGIN - #Modernization pass
+    JSAMPROW inptr, outptr;
+    JSAMPLE invalue;
+// EPM_END
     JSAMPROW outend;
     int inrow;
 
@@ -258,8 +262,10 @@ METHODDEF void
 h2v2_upsample( j_decompress_ptr cinfo, jpeg_component_info * compptr,
                JSAMPARRAY input_data, JSAMPARRAY * output_data_ptr ) {
     JSAMPARRAY output_data = *output_data_ptr;
-    register JSAMPROW inptr, outptr;
-    register JSAMPLE invalue;
+// EPM_BEGIN - #Modernization pass
+    JSAMPROW inptr, outptr;
+    JSAMPLE invalue;
+// EPM_END
     JSAMPROW outend;
     int inrow, outrow;
 
@@ -300,9 +306,11 @@ METHODDEF void
 h2v1_fancy_upsample( j_decompress_ptr cinfo, jpeg_component_info * compptr,
                      JSAMPARRAY input_data, JSAMPARRAY * output_data_ptr ) {
     JSAMPARRAY output_data = *output_data_ptr;
-    register JSAMPROW inptr, outptr;
-    register int invalue;
-    register JDIMENSION colctr;
+// EPM_BEGIN - #Modernization pass
+    JSAMPROW inptr, outptr;
+    int invalue;
+    JDIMENSION colctr;
+// EPM_END
     int inrow;
 
     for ( inrow = 0; inrow < cinfo->max_v_samp_factor; inrow++ ) {
@@ -340,13 +348,15 @@ METHODDEF void
 h2v2_fancy_upsample( j_decompress_ptr cinfo, jpeg_component_info * compptr,
                      JSAMPARRAY input_data, JSAMPARRAY * output_data_ptr ) {
     JSAMPARRAY output_data = *output_data_ptr;
-    register JSAMPROW inptr0, inptr1, outptr;
+// EPM_BEGIN - #Modernization pass
+    JSAMPROW inptr0, inptr1, outptr;
 #if BITS_IN_JSAMPLE == 8
-    register int thiscolsum, lastcolsum, nextcolsum;
+    int thiscolsum, lastcolsum, nextcolsum;
 #else
-    register INT32 thiscolsum, lastcolsum, nextcolsum;
+    INT32 thiscolsum, lastcolsum, nextcolsum;
 #endif
-    register JDIMENSION colctr;
+    JDIMENSION colctr;
+// EPM_END
     int inrow, outrow, v;
 
     inrow = outrow = 0;

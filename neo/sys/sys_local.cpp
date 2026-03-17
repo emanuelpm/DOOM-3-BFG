@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -109,15 +109,21 @@ void idSysLocal::ShutdownSymbols() {
 	Sys_ShutdownSymbols();
 }
 
-int idSysLocal::DLL_Load( const char *dllName ) {
+// EPM_BEGIN - #64Bit support
+intptr_t idSysLocal::DLL_Load( const char *dllName ) {
+// EPM_END
 	return Sys_DLL_Load( dllName );
 }
 
-void *idSysLocal::DLL_GetProcAddress( int dllHandle, const char *procName ) {
+// EPM_BEGIN - #64Bit support
+void *idSysLocal::DLL_GetProcAddress( intptr_t dllHandle, const char *procName ) {
+// EPM_END
 	return Sys_DLL_GetProcAddress( dllHandle, procName );
 }
 
-void idSysLocal::DLL_Unload( int dllHandle ) {
+// EPM_BEGIN - #64Bit support
+void idSysLocal::DLL_Unload( intptr_t dllHandle ) {
+// EPM_END
 	Sys_DLL_Unload( dllHandle );
 }
 
@@ -165,7 +171,7 @@ const char *Sys_TimeStampToStr( ID_TIME_T timeStamp ) {
 	}
 
 	idStr out;
-	
+
 	idStr lang = cvarSystem->GetCVarString( "sys_lang" );
 	if ( lang.Icmp( ID_LANG_ENGLISH ) == 0 ) {
 		// english gets "month/day/year  hour:min" + "am" or "pm"
