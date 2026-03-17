@@ -33,6 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 
 idCVar r_skipStripDeadCode( "r_skipStripDeadCode", "0", CVAR_BOOL, "Skip stripping dead code" );
 idCVar r_useUniformArrays( "r_useUniformArrays", "1", CVAR_BOOL, "" );
+idCVar r_forceRecompileShaders( "r_forceRecompileShaders", "0", CVAR_BOOL, "" );
 
 
 #define VERTEX_UNIFORM_ARRAY_NAME				"_va_"
@@ -113,13 +114,13 @@ attribInfo_t attribsPC[] = {
 	{ "float",		"facing",		"FACE",			"gl_FrontFacing",		0,	AT_PS_IN,		0 },
 
 	// fragment program output
-	{ "float4",		"color",		"COLOR",		"gl_FragColor",		0,	AT_PS_OUT,		0 }, // GLSL version 1.2 doesn't allow for custom color name mappings
-	{ "half4",		"hcolor",		"COLOR",		"gl_FragColor",		0,	AT_PS_OUT,		0 },
-	{ "float4",		"color0",		"COLOR0",		"gl_FragColor",		0,	AT_PS_OUT,		0 },
-	{ "float4",		"color1",		"COLOR1",		"gl_FragColor",		1,	AT_PS_OUT,		0 },
-	{ "float4",		"color2",		"COLOR2",		"gl_FragColor",		2,	AT_PS_OUT,		0 },
-	{ "float4",		"color3",		"COLOR3",		"gl_FragColor",		3,	AT_PS_OUT,		0 },
-	{ "float",		"depth",		"DEPTH",		"gl_FragDepth",		4,	AT_PS_OUT,		0 },
+	{ "float4",		"color",		"COLOR",		"out_FragColor",		0,	AT_PS_OUT,		0 }, // GLSL version 1.2 doesn't allow for custom color name mappings
+	{ "half4",		"hcolor",		"COLOR",		"out_FragColor",		0,	AT_PS_OUT,		0 },
+	{ "float4",		"color0",		"COLOR0",		"out_FragColor",		0,	AT_PS_OUT,		0 },
+	{ "float4",		"color1",		"COLOR1",		"out_FragColor",		1,	AT_PS_OUT,		0 },
+	{ "float4",		"color2",		"COLOR2",		"out_FragColor",		2,	AT_PS_OUT,		0 },
+	{ "float4",		"color3",		"COLOR3",		"out_FragColor",		3,	AT_PS_OUT,		0 },
+	{ "float",		"depth",		"DEPTH",		"out_FragDepth",		4,	AT_PS_OUT,		0 },
 
 	// vertex to fragment program pass through
 	{ "float4",		"color",		"COLOR",		"gl_FrontColor",			0,	AT_VS_OUT,	0 },
@@ -620,7 +621,10 @@ void ParseInOutStruct( idLexer & src, int attribType, idList< inOutVariable_t > 
 			}
 		}
 
-		inOutVars.Append( var );
+		// Don't declare gl_FragColor for glsl 1.5
+		if ( true || attribType != AT_PS_OUT ) {
+			inOutVars.Append( var );
+		}
 	}
 
 	src.ExpectTokenString( ";" );
@@ -944,9 +948,12 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char * name, id
 	// if the glsl file doesn't exist or we have a newer HLSL file we need to recreate the glsl file.
 	idStr programGLSL;
 	idStr programUniforms;
-	if ( ( glslFileLength <= 0 ) || ( hlslTimeStamp > glslTimeStamp ) ) {
+	if ( r_forceRecompileShaders.GetBool() || ( glslFileLength <= 0 ) || ( hlslTimeStamp > glslTimeStamp ) ) {
 		if ( hlslFileLength <= 0 ) {
 			// hlsl file doesn't even exist bail out
+			if ( r_forceRecompileShaders.GetBool() ) {
+				idLib::Warning("Forcing shader recompile, but source file %s is missing", inFile.c_str());
+			}
 			return false;
 		}
 
